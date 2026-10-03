@@ -64,8 +64,8 @@ Just ask, in any language:
 In Claude Code there are also commands: `/job-setup`, `/job-search`, `/job-tailor`, `/job-review`, `/job-apply`,
 `/job-cover-letter`, `/job-outreach`, `/job-inbox`, `/job-status`, `/job-interview`.
 
-With many jobs at once, Claude Code tailors and reviews them in parallel subagents. For heavy use you can run three
-sessions side by side (search, apply, outreach): see `workflows/parallel.md`.
+With many jobs at once, Claude Code tailors and reviews them in parallel subagents. For heavy use, run two sessions
+side by side: one finds and prepares jobs, the other applies and follows up (`workflows/parallel.md`).
 
 ## How it stays truthful
 
@@ -125,6 +125,10 @@ two-column and sidebar layouts become one column, because ATS systems often read
 
 **One page or two?** One, unless you have 10+ years of experience. The text size adjusts between 9.4 and 11pt to fit,
 and if the page comes out thin, the agent adds your next most relevant achievement rather than padding.
+
+**Why does the agent keep asking for permission?** It asks before running scripts and before every browser
+action. During setup it offers fewer prompts (scripts and page reading run freely) or almost none (all browser
+actions), explains what each means, and saves your choice locally. Nothing is pre-approved in this repo.
 
 **Codex or Claude Code?** Both read the same instructions (`AGENTS.md`). The differences: Claude Code has the
 `/job-...` commands and runs the review in a separate subagent; in Codex, the browser extension works in the Codex

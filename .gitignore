@@ -1,5 +1,6 @@
 # Your personal data never leaves your machine
 my-search/
+.claude/settings.local.json
 
 __pycache__/
 *.pyc

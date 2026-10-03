@@ -18,21 +18,26 @@ Rules for subagents:
 - `kit/build.py <n>` renders only job n, so parallel builds don't collide. Never run `build.py` with no numbers
   from a subagent.
 
-## 2. Parallel sessions with roles (for heavy use)
-Several agent sessions open at once, each with one job. Give each session its role in its first message
-("you're the apply session, see workflows/parallel.md").
+## 2. Two sessions side by side (for heavy use)
+Worth it once there's a steady flow of jobs: the slow part is applying, because the browser works one form at
+a time. A second session keeps finding and preparing jobs meanwhile. Give each session its role in its first
+message ("you're the apply session, see workflows/parallel.md").
 
 | Session | Does | Writes | Never touches |
 |---|---|---|---|
-| **Search** | search, triage, new job folders, tailoring + review of new jobs | `search.yaml`, `batches/`, new `jobs/` folders and their rows in the tracker | jobs that are being submitted |
-| **Apply** | submits every job that passes `check_ready.py`; fixes and re-renders those CVs | the tracker rows of the jobs it submits, their folders, `answers-bank.md` | `search.yaml`, `batches/` |
-| **Outreach** | contacts, messages, follow-ups, replies from the inbox | `outreach.md` / `referral-message.md` in job folders, `contacts.md` | `spec.yaml`, PDFs |
+| **Prep** | search, triage, new job folders, tailoring and review (with subagents), cover letters | `search.yaml`, `batches/`, new `jobs/` folders and their tracker rows, `spec.yaml`, PDFs, `review.md` | the browser; jobs already handed to Apply |
+| **Apply** | submits every job that passes `check_ready.py`, then outreach and follow-ups for what it sent | tracker rows of the jobs it submits, `answers-bank.md`, `outreach.md`, `contacts.md` | `search.yaml`, `batches/`; a CV that needs more than a small fix goes back to Prep |
 
-Hand-off: a job is ready for the apply session when its review is ✅ or ⚠️ (`check_ready.py` says "ready").
+Why this split and not "one edits CVs, one applies": tailoring is fast and already runs in parallel subagents,
+so a separate CV session adds a hand-off and nothing else. The real bottleneck is the browser, and it should
+have one owner: two sessions clicking in the same Chrome trip over each other.
+
+Hand-off: a job is ready for Apply when `check_ready.py` says "ready" (review ✅ or ⚠️). Apply never submits
+anything else.
 
 Shared files, safely:
 - `log.md`: only through `kit/log.py`, which appends one line. Every session logs its own events.
 - `tracker.md`, `preferences.md`, `profile.yaml`: change one line at a time with an exact edit, never rewrite the
-  whole file, and re-read it right before editing (another session may have changed it).
+  whole file, and re-read it right before editing (the other session may have changed it).
 - `profile.yaml` facts: only the session that's talking to the user about that fact adds it.
 - Two sessions never work on the same job. If unsure, check the tracker row first.

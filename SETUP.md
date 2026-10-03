@@ -104,6 +104,27 @@ Run `python3 kit/search.py --only companies,remote` once to confirm the companie
 Tell them once, plainly: the search reads LinkedIn's public job pages and applying uses their own browser,
 and LinkedIn's terms forbid automation, so volumes stay low and the risk is theirs.
 
+## 7b. Fewer permission prompts
+The agent asks the user before running scripts and before every browser action. That's safe, but in a
+job search it means dozens of prompts. Explain the three options in plain words, and let them choose:
+1. **Ask every time** (default): nothing to change.
+2. **Fewer prompts**: the kit's scripts, and reading pages in the browser, run without asking. Clicking,
+   typing and uploading still ask.
+3. **Almost none**: every browser action runs without asking, clicking and typing included. You still stop
+   before submitting (the approval policy in preferences.md), but that's your own rule, not a technical
+   gate. Only for users who are comfortable with that.
+
+In Claude Code, write their choice to `.claude/settings.local.json` (personal, git-ignored; merge with
+anything already there, don't overwrite). Option 2:
+```json
+{"permissions": {"allow": ["Bash(python3 kit/*)",
+  "mcp__claude-in-chrome__tabs_context_mcp", "mcp__claude-in-chrome__tabs_create_mcp", "mcp__claude-in-chrome__navigate",
+  "mcp__claude-in-chrome__read_page", "mcp__claude-in-chrome__get_page_text", "mcp__claude-in-chrome__find"]}}
+```
+Option 3: `{"permissions": {"allow": ["Bash(python3 kit/*)", "mcp__claude-in-chrome__*"]}}`.
+It applies from the next session. In Codex, point them to its approval settings (`/approvals`) instead.
+Record the choice under "Decisions". They can change it any time by asking.
+
 ## 8. Done
 Record the setup date under "Decisions" in preferences.md. Then tell them what they can ask for next:
 - "find me jobs": search, triage, and tailored CVs for the matches
@@ -111,3 +132,5 @@ Record the setup date under "Decisions" in preferences.md. Then tell them what t
 - "what's waiting?": status, follow-ups due, and what's working (kit/stats.py)
 - "check my email": new job alerts and replies from companies (if email is connected)
 And that next time, they should open the agent in this folder so it picks up where it left off.
+Once there are many jobs a week: a second session can apply while the first keeps finding and preparing
+jobs (`workflows/parallel.md`). Mention it once; one session is fine to start.
