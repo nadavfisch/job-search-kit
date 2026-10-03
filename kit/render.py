@@ -47,6 +47,7 @@ h1 { font-family: 'Questrial', 'Roboto', Arial, sans-serif; font-weight: 400; te
 .contact { text-align: center; font-size: 8.6pt; color: #444; margin-bottom: 11pt; }
 .contact a { color: #444; }
 .contact .sep { margin: 0 3px; color: #999; }
+.contact .item { white-space: nowrap; }   /* a long contact line wraps between items, never inside one */
 .summary { margin: 0 0 SECTpt; }
 h2 { font-family: 'Questrial', 'Roboto', Arial, sans-serif; font-weight: 400; letter-spacing: .1em; font-size: 15pt; color: #444; margin: 0 0 5pt; text-transform: uppercase; }
 .job { margin-bottom: JOBpt; }
@@ -79,7 +80,7 @@ def build_html(profile, spec, fs, lh, top, sect, job):
     roles = {r["key"]: r for r in profile["experience"]}
 
     parts = [f'<div class="page"><h1>{esc(profile["name"])}</h1><div class="role">{esc(spec["title"])}</div>',
-             f'<div class="contact">{"<span class=sep> | </span>".join(items)}</div>']
+             f'<div class="contact">{"<span class=sep> | </span>".join(f"<span class=item>{x}</span>" for x in items)}</div>']
     if spec.get("summary"):
         parts.append(f'<div class="summary">{esc(spec["summary"])}</div>')
     parts.append(f'<div class="sect"><h2>{esc(labels["experience"])}</h2>')
