@@ -5,6 +5,9 @@ looking for, and show them their first CV built by the kit. Talk in the user's l
 questions at a time, never a wall of them.
 
 ## 1. Check the machine
+The kit folder must be inside the folder the agent was opened in, or file reads, edits and CV uploads to forms
+will be blocked. If it isn't, tell the user to reopen the agent in the kit folder (in Claude Code, `/add-dir <kit folder>`
+also works for this session).
 ```
 python3 --version                               # 3.9 or newer
 python3 -m pip install -r requirements.txt      # pypdf, pyyaml

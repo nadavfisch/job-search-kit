@@ -34,11 +34,12 @@ You need: Claude Code or Codex, Python 3.9+, Google Chrome (it renders the PDFs)
 Paste this into Claude Code or Codex:
 
 ```
-Clone https://github.com/nadavfisch/job-search-kit into ~/job-search-kit and work from that folder: install its requirements, then read SETUP.md and follow it.
+Clone https://github.com/nadavfisch/job-search-kit here and work from that folder: install its requirements, then read SETUP.md and follow it.
 ```
 
-The agent installs everything, asks for your CV, and starts asking questions. After setup, always open your agent inside
-`~/job-search-kit`, so it picks up where you left off.
+Open your agent in the folder where you want the kit to live (your home folder is fine): it can only reach files inside
+the folder it was opened in. The agent installs everything, asks for your CV, and starts asking questions. After setup,
+always open your agent inside the `job-search-kit` folder, so it picks up where you left off.
 
 Or by hand:
 ```
