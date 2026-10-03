@@ -51,7 +51,8 @@ Ask, and write the answers into `preferences.md` and `answers-bank.md`:
 4. Industries they want, and ones to avoid. Hard deal-breakers?
 5. Anything that must never appear on their CV, or that misrepresents them (e.g. "don't call me a developer").
    This goes into `rules.banned` in profile.yaml. Levels they don't hold go into `rules.title_banned`.
-6. Submission approval: ask before each application (default), or apply to every approved match without asking?
+6. Submission approval: ask before each application, showing the CV first (default), or apply to every approved
+   match without asking? Either way, do they want to see each CV before it's sent?
 7. Is anyone at a target company who could refer them? Those jobs become "referral" instead of a cold application.
 8. The CV's language and direction (for Hebrew or Arabic: `rtl: true` and Hebrew `labels` in profile.yaml).
 9. Which companies would they most like to work at? (Up to 20-30. These get checked directly, see step 7.)
@@ -68,7 +69,7 @@ and a tailored CV leaves out what the job doesn't need.
 ```
 python3 kit/build.py master
 ```
-Open `my-search/master/*.pdf` (or tell them where it is). Ask what's wrong or missing. Fix the profile
+Open it with `python3 kit/preview.py master`. Ask what's wrong or missing. Fix the profile
 (the facts), rebuild, repeat until they're happy. This also confirms the summary and headline.
 - "DOESN'T FIT": drop bullets from `default`.
 - "page only N% full": the page looks thin. Add a relevant bullet to `default` or a skills line; don't pad.

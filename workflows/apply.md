@@ -6,7 +6,9 @@ python3 kit/check_ready.py
 ```
 A job that isn't "ready" isn't submitted until it's fixed. Order: newest postings with the fewest applicants first
 (tracker columns Posted, Applicants). Check `preferences.md` for the approval policy: by default, show the list
-(company, role, how to apply) and wait for the user's OK.
+(company, role, how to apply, the review verdict), open the CVs so they can look before answering
+(`python3 kit/preview.py <n> <n> ...`, cover letters included), and wait for the user's OK.
+With blanket approval, still open them once when a batch becomes ready, unless preferences say not to.
 
 ## 1. Per job
 1. Open the posting. Still open? Not already applied (tracker "Submitted", and the page itself)?

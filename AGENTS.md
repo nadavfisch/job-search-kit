@@ -79,6 +79,7 @@ python3 kit/new_job.py --batch <date> --id <id> --status apply
 python3 kit/new_job.py --company X --role Y --link URL --jd - --status apply   (description on stdin)
 python3 kit/build.py [n ...|master] [--check] [--force]
 python3 kit/check_ready.py [n ...]
+python3 kit/preview.py <n ...|master>        open CVs in the PDF viewer for the user
 python3 kit/letter.py <n> [--check]           cover letter -> PDF
 python3 kit/log.py <event> --job N --details "..."
 python3 kit/stats.py                          pipeline, response rates by source, follow-ups due

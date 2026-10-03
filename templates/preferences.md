@@ -22,6 +22,7 @@ Auto-skip a job when (examples, edit to fit):
 ## Submissions
 - Approval: ask me before each submission
   <!-- or: "blanket: submit every job marked apply/stretch without asking" -->
+- Show me each CV before it's sent: yes
 - Referral jobs (someone I know works there): don't apply directly. Prepare a message for my contact.
 
 ## Decisions
