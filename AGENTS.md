@@ -102,6 +102,11 @@ user's guardrails ban. Fix the spec; never loosen the check or edit profile.yaml
   open questions together at the end.
 - **Company identity** comes only from the posting itself. Never triage or tailor from an empty description.
 - **tracker.md:** edit one row at a time, never rewrite the table.
+- **Hand over files the user can use as they are, never a .md.** Something to upload (a cover letter) is a PDF,
+  plus a .txt for text boxes; the .md is only the source. A message to send (outreach, referral, follow-up, a reply)
+  is shown in chat in a copy-ready block and saved as plain .txt with no markdown. An email: To, Subject and Body as
+  separate copy-ready blocks, and reveal its attachments in the file manager (macOS: `open -R <file>`); with an email
+  tool connected, create it as a draft in the user's mailbox instead (never send).
 - **Several jobs at once:** tailor and review them in parallel subagents when you can launch them; several
   sessions open at once each take one role. Both: `workflows/parallel.md`.
 

@@ -30,7 +30,7 @@ Classify each one and act:
 | Rejection | Status `rejected`, Response = date | `rejected` | nothing; note any reason given |
 | Interview invite / scheduling | Status `interview`, Response = date | `interview` | tell the user; offer `workflows/interview.md`; calendar (below) |
 | Take-home / assessment | Response = date | `assessment` | tell the user the deadline |
-| A recruiter's question or reply | Response = date | `reply` | draft an answer for the user (they send it) |
+| A recruiter's question or reply | Response = date | `reply` | draft an answer for the user (they send it): a draft in their mailbox if the email tool can create one, otherwise Subject + Body as copy-ready blocks |
 | Auto-acknowledgement ("we got your application") | nothing | nothing | ignore |
 
 Report: one line per company. Draft any replies; the user sends them.

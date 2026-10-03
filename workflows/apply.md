@@ -17,6 +17,9 @@ Defaults: 15 a day, 5 an hour, 3 minutes apart (the user can change them in pref
 1. Open the posting. Still open? Not already applied (tracker "Submitted", and the page itself)?
    Closed → status `closed` in the tracker and `python3 kit/log.py closed --job N`, next job.
 2. Note how to apply: LinkedIn Easy Apply, or the company's site (Greenhouse, Lever, Comeet, Workday...).
+   An "Apply" link that turns out to be an email address (e.g. `...@applynow.io`): check the company's careers page
+   first, there's often a regular form for the same job. Email only if there isn't: prepare it as in AGENTS.md
+   ("Hand over files..."), the user sends it.
 3. Fill every field from `answers-bank.md` (✅ only) and profile.yaml. Upload the job's PDF.
    A cover letter is requested: write it first (`workflows/cover-letter.md`), and have it reviewed.
 4. A question with no ✅ answer: don't invent one. Close the form without sending (keep the draft if the

@@ -21,5 +21,7 @@ no flattery. The greeting: "Dear <name>," if the hiring manager is known, otherw
 python3 kit/letter.py <n> --check     # numbers must be in profile.yaml; banned phrases; length
 python3 kit/letter.py <n>             # -> <Name> - Cover Letter.pdf in the job folder
 ```
-For a text box, paste the text from cover-letter.md (through JS for long text, see apply.md).
+Give the user the PDF (and the text as `<Name> - Cover Letter.txt` for text boxes), never the .md: most forms only
+take PDF/DOCX, and markdown symbols end up in pasted text. For a text box you fill yourself, paste the plain text
+(through JS for long text, see apply.md).
 The letter is part of the review: when `review.md` is written after the letter exists, it covers the letter too.

@@ -1,4 +1,4 @@
-"""Check and render a job's cover letter (jobs/NNN/cover-letter.md) to PDF.
+"""Check and render a job's cover letter (jobs/NNN/cover-letter.md) to PDF, plus a plain .txt for text boxes.
 
   python3 kit/letter.py <n> [--check] [--force]
 
@@ -57,4 +57,7 @@ page = (f'<!doctype html><html{d_attr}><head><meta charset="utf-8">'
         f"<h1>{esc(p['name'])}</h1><div class=contact>{contact}</div>{paras}</div></body></html>")
 out = os.path.join(d, f"{safe(p['name'])} - Cover Letter.pdf")
 pages = to_pdf(page, out)
+# Plain-text copy for text boxes: the user never copies from the .md.
+with open(out[:-4] + ".txt", "w", encoding="utf-8") as f:
+    f.write("\n\n".join(x.strip() for x in re.split(r"\n\s*\n", body) if x.strip()) + "\n")
 print(out + ("" if pages == 1 else f"  (warning: {pages} pages, shorten it)"))

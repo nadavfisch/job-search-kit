@@ -21,6 +21,9 @@ For each person:
 - **message** in the person's language. Connection notes are short (LinkedIn: 200 characters; free accounts
   get only a few personalized notes a month, so only the ⭐ person gets one). Count characters in code, not by eye.
 
+Hand each message over ready to send: in chat as a copy-ready block, and as `outreach-<name>.txt` (plain text,
+no markdown) next to outreach.md. outreach.md keeps the notes; the user never copies from it.
+
 Add each person to `my-search/contacts.md` with status `drafted`. When the user says they sent it: status
 `sent`, Last contact = today, and `python3 kit/log.py message-sent --job N --details "<name>, <channel>"`.
 When someone answers: status `replied`, and log `reply`.
@@ -37,4 +40,4 @@ If the user wants reminders in their calendar, see the Calendar section of `work
 
 ## Referrals
 A job where the user knows someone: no cold application. Draft `referral-message.md`: a short, friendly ask,
-the job link, and 2-3 lines the contact can forward as-is.
+the job link, and 2-3 lines the contact can forward as-is. Hand it over like any message (chat block + .txt).
