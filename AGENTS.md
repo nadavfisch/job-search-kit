@@ -96,7 +96,8 @@ user's guardrails ban. Fix the spec; never loosen the check or edit profile.yaml
   open questions together at the end.
 - **Company identity** comes only from the posting itself. Never triage or tailor from an empty description.
 - **tracker.md:** edit one row at a time, never rewrite the table.
-- **Several sessions at once:** give each session its own job numbers, and say which files it owns.
+- **Several jobs at once:** tailor and review them in parallel subagents when you can launch them; several
+  sessions open at once each take one role. Both: `workflows/parallel.md`.
 
 ## Connected tools (all optional)
 Use them when they're connected and `preferences.md` says the user wants them; otherwise do the same steps by hand.

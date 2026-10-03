@@ -34,11 +34,10 @@ You need: Claude Code or Codex, Python 3.9+, Google Chrome (it renders the PDFs)
 Paste this into Claude Code or Codex:
 
 ```
-Clone https://github.com/nadavfisch/job-search-kit into ~/job-search-kit and work from that folder:
-install its requirements, then read SETUP.md and follow it. My CV is at <path to your CV>.
+Clone https://github.com/nadavfisch/job-search-kit into ~/job-search-kit and work from that folder: install its requirements, then read SETUP.md and follow it.
 ```
 
-The agent installs, reads your CV, and starts asking questions. After setup, always open your agent inside
+The agent installs everything, asks for your CV, and starts asking questions. After setup, always open your agent inside
 `~/job-search-kit`, so it picks up where you left off.
 
 Or by hand:
@@ -64,6 +63,9 @@ Just ask, in any language:
 
 In Claude Code there are also commands: `/job-setup`, `/job-search`, `/job-tailor`, `/job-review`, `/job-apply`,
 `/job-cover-letter`, `/job-outreach`, `/job-inbox`, `/job-status`, `/job-interview`.
+
+With many jobs at once, Claude Code tailors and reviews them in parallel subagents. For heavy use you can run three
+sessions side by side (search, apply, outreach): see `workflows/parallel.md`.
 
 ## How it stays truthful
 

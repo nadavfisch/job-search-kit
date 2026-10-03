@@ -1,5 +1,7 @@
 # Tailor a CV to one job
 
+Several jobs waiting? One subagent per job, in parallel (`workflows/parallel.md`).
+
 Input: `my-search/jobs/NNN - Company - Role/job-description.txt`. Output: that folder's `spec.yaml` and the PDF.
 Sources of truth: `profile.yaml` (facts) and `preferences.md` (decisions). Nothing else.
 
