@@ -123,6 +123,8 @@ anything already there, don't overwrite). Option 2:
 ```
 Option 3: `{"permissions": {"allow": ["Bash(python3 kit/*)", "mcp__claude-in-chrome__*"]}}`.
 It applies from the next session. In Codex, point them to its approval settings (`/approvals`) instead.
+One prompt stays either way: "allow <site> for this session" is a per-site approval from the browser
+integration, and settings can't turn it off. Tell them to pick that option once per site per session.
 Record the choice under "Decisions". They can change it any time by asking.
 
 ## 8. Done

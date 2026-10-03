@@ -129,6 +129,7 @@ and if the page comes out thin, the agent adds your next most relevant achieveme
 **Why does the agent keep asking for permission?** It asks before running scripts and before every browser
 action. During setup it offers fewer prompts (scripts and page reading run freely) or almost none (all browser
 actions), explains what each means, and saves your choice locally. Nothing is pre-approved in this repo.
+One prompt can't be turned off in settings: "allow <site> for this session". Pick it once per site, per session.
 
 **Codex or Claude Code?** Both read the same instructions (`AGENTS.md`). The differences: Claude Code has the
 `/job-...` commands and runs the review in a separate subagent; in Codex, the browser extension works in the Codex

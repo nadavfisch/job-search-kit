@@ -60,9 +60,10 @@ def add(j, query=None):
 
 def wanted(j, keywords, exclude, locations):
     t, loc = j["title"].lower(), j["location"].lower()
-    if keywords and not any(k.lower() in t for k in keywords):
+    word = lambda k: re.search(rf"(?<![a-z0-9]){re.escape(k.lower())}(?![a-z0-9])", t)   # "AI" matches "AI Lead", not "Retail"
+    if keywords and not any(word(k) for k in keywords):
         return False
-    if any(x.lower() in t for x in exclude):
+    if any(word(x) for x in exclude):
         return False
     if locations and not any(l.lower() in loc for l in locations):
         return False

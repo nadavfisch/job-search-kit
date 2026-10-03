@@ -6,14 +6,19 @@
 Every fetcher yields the same shape: {id, title, company, location, date, url, source, description}.
 `description` may be a function, so detail pages are fetched only for jobs that pass the filters.
 """
-import datetime, html, json, re, sys, urllib.parse, urllib.request
+import datetime, html, json, re, sys, urllib.error, urllib.parse, urllib.request
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 
 
-def get(url, data=None):
+def get(url, data=None, hops=5):
     req = urllib.request.Request(url, data=data, headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"})
-    return urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "ignore")
+    try:
+        return urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "ignore")
+    except urllib.error.HTTPError as e:   # Python < 3.11 doesn't follow 307/308
+        if e.code in (307, 308) and hops and e.headers.get("Location"):
+            return get(urllib.parse.urljoin(url, e.headers["Location"]), data, hops - 1)
+        raise
 
 
 def get_json(url):
