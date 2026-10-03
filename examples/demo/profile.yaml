@@ -22,7 +22,7 @@ experience:
       acme_support_short: "Built support from zero, including an LLM triage bot resolving 45% of tickets."
       acme_reporting: "Built 15 Looker Studio dashboards for leadership, replacing weekly spreadsheet reports."
       acme_onboarding: "Ran onboarding for 60+ enterprise customers, working with Sales and Engineering on each rollout."
-    default: [acme_billing, acme_support, acme_reporting]
+    default: [acme_billing, acme_support, acme_reporting, acme_onboarding]
   - key: initech
     header: "Operations Analyst | Initech - Logistics | 2018-2021"
     bullets:

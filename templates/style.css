@@ -1,0 +1,33 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&display=block'); */
+/* ^ fonts: any Google Font, imported here before any other rule. Always give a fallback in the variables below.
+
+   Your CV's look. Loaded after the kit's template, so whatever is here wins.
+   build.py refuses the common ways a stylesheet breaks ATS reading or the page fit: columns, grid, flex,
+   floats, positioning, transforms, images, gradients, generated text, a font size on html/body/.page,
+   and letter-spacing above .1em.
+   Fixed (not styleable): one column, the section order, the text itself.
+   Set in profile.yaml instead: section names (`labels`) and the separator between contact items and
+   role-line parts (`separator`, default "|"). */
+
+:root {
+  --text: #333;            /* body text */
+  --name: #444;            /* your name */
+  --title: #444;           /* the job title under your name */
+  --contact: #444;         /* the contact line */
+  --section: #444;         /* section headings */
+  --strong: #3a3a3a;       /* role lines, skill labels */
+  --muted: #999;           /* separators */
+  --font-body: 'Roboto', Arial, sans-serif;
+  --font-head: 'Questrial', 'Roboto', Arial, sans-serif;
+  --align-head: center;    /* name, title and contact line: center or left */
+  --case-head: uppercase;  /* uppercase or none */
+}
+
+/* Selectors: h1 (name), .role (title), .contact, .summary, h2 (section headings), .jh (role lines), li,
+   .skills b (skill labels), ul.edu (education), .sep (separators).
+   Sizes: use em (1.2em = 20% bigger than the body text), so headings scale with the text as the build
+   fits the page. Examples:
+h2 { border-bottom: 1.5pt solid var(--title); padding-bottom: 2pt; letter-spacing: 0; }
+h1 { font-weight: 700; letter-spacing: 0; }
+ul.edu { list-style: none; padding-inline-start: 0; }
+*/

@@ -35,6 +35,7 @@ my-search/                  the user's data (git-ignored, never commit or upload
   tracker.md                one row per job: status, source, dates, link
   log.md                    every event, dated (append only)
   contacts.md               everyone contacted, across all jobs
+  style.css                 optional: the CV's look (colors, fonts), see SETUP.md 6b
   source-cv/                the CV files they gave you
   master/                   the general CV (kit/build.py master)
   batches/<date>/           search results from every source: jobs_all.json, jd/<id>.txt, triage.md
@@ -69,6 +70,7 @@ templates/                  blank versions of the my-search files
 ## Scripts
 ```
 python3 kit/extract_text.py <file>            text of a PDF / Word / text CV
+python3 kit/pdf_style.py <cv.pdf>             a PDF's exact colors, fonts and sizes (for my-search/style.css)
 python3 kit/search.py [date] [--only ...]     every source in search.yaml -> batches/<date>/
 python3 kit/fetch_jd.py <date> new            LinkedIn descriptions (other sources save theirs during the search)
 python3 kit/sources.py guess "<company>"      which job board a company uses (or: detect <careers url>)

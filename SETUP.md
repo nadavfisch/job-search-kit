@@ -63,12 +63,31 @@ Ask, and write the answers into `preferences.md` and `answers-bank.md`:
 Fill the short-field table in `answers-bank.md` from these answers and the profile, marked ✅.
 
 ## 6. The first CV
+**Length:** one page. Two (`max_pages: 2`) only with 10+ years of experience and if they want it: recruiters skim,
+and a tailored CV leaves out what the job doesn't need.
 ```
 python3 kit/build.py master
 ```
 Open `my-search/master/*.pdf` (or tell them where it is). Ask what's wrong or missing. Fix the profile
 (the facts), rebuild, repeat until they're happy. This also confirms the summary and headline.
-If the result doesn't fit on one page: drop bullets from `default`, or set `max_pages: 2` if they want two.
+- "DOESN'T FIT": drop bullets from `default`.
+- "page only N% full": the page looks thin. Add a relevant bullet to `default` or a skills line; don't pad.
+
+## 6b. The look
+Ask: keep this clean template, or make it look like their current CV? Either way it stays one column of
+text, which is what ATS systems read reliably. Record the answer under "Decisions" in preferences.md.
+To match their CV:
+1. Read the original's look. For a PDF, `python3 kit/pdf_style.py <cv.pdf>` gives its exact colors, fonts and
+   sizes (a Word file: save it as PDF first). Then look at its first page (read the PDF, or on macOS
+   `sips -s format png <pdf> --out <png>`) for alignment, upper or normal case, rules under headings, a bold name.
+2. `cp templates/style.css my-search/style.css` and set the variables. Use em for any size, so headings scale
+   with the text. If the original names its sections differently ("Experience"), set `labels` in profile.yaml;
+   if it separates items with "·" or "/", set `separator`. A two-column or sidebar design becomes one column
+   in the same colors and fonts; tell the user that, and why.
+3. `python3 kit/build.py master` and look at the result next to the original (read both). Fix and rebuild:
+   at most 3 builds in all. build.py refuses what would break ATS reading; don't work around it.
+4. Show them. What can't carry over: the column layout, the section order, and sizes (the body text is sized
+   to fit the page, 9.4-11pt). They can change the look any time ("make the headings navy"): edit `my-search/style.css`.
 
 ## 7. Search settings
 Write `my-search/search.yaml`:

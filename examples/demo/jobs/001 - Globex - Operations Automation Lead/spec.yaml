@@ -13,6 +13,7 @@ experience:
       - from: acme_support
         text: "Built support tooling from zero, including LLM-based ticket triage resolving 45% of tickets, plus SLAs and a 120-article knowledge base."
       - acme_reporting
+      - acme_onboarding
   - role: initech
-    bullets: [initech_routing]
+    bullets: [initech_routing, initech_vendors]
 skills: [auto, ai, data, ops]

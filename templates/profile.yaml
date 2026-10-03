@@ -34,7 +34,7 @@ skills:                    # skills lines a CV can pick by key
 languages: ""              # e.g. "English (native), Hebrew (fluent)"
 
 # Optional
-max_pages: 1
+max_pages: 1               # 2 only with 10+ years of experience
 rtl: false                 # true for a right-to-left CV (Hebrew, Arabic)
 labels: {}                 # rename sections, e.g. {experience: "ניסיון תעסוקתי", skills: "כישורים"}
 

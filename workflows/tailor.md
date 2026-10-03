@@ -47,6 +47,8 @@ python3 kit/build.py --check <n>      # fix every error in the spec, then:
 python3 kit/build.py <n>
 ```
 "DOESN'T FIT": cut the weakest bullet or shorten one. Don't remove whole roles.
+"page only N% full": add the next most relevant bullet (a recent role first) or a skills line. Never pad
+with filler or stretch wording to fill space.
 
 ## 4. Review
 Run `workflows/review.md` on it. A CV goes to the user or gets submitted only after review.

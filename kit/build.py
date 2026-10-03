@@ -159,8 +159,15 @@ def main():
         for old in glob.glob(os.path.join(d, f"{glob.escape(name)} - *.pdf")):
             if old != out:
                 os.remove(old)   # an earlier render under a different title
-        step = render(p, spec, out)
-        print(f"#{n}: " + ("DOESN'T FIT: cut or shorten bullets" if step == "OVERFLOW" else out))
+        r = render(p, spec, out)
+        if r == "OVERFLOW":
+            print(f"#{n}: DOESN'T FIT: cut or shorten bullets"); continue
+        note = ""
+        if r["pages"] == 1 and r["fill"] < 0.75:
+            note = f"\n   page only {r['fill']:.0%} full: add a relevant bullet or skills line (workflows/tailor.md)"
+        elif r["pages"] > 1 and r["fill"] < 0.4:
+            note = f"\n   last page only {r['fill']:.0%} full: cut to {r['pages'] - 1} page(s), or add content"
+        print(f"#{n}: {out}{note}")
 
 
 if __name__ == "__main__":

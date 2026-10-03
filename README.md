@@ -101,7 +101,9 @@ The risk to your account is yours. You can skip the search entirely and paste jo
 
 ## Make it yours
 
-- **CV design**: one clean, ATS-friendly template in `kit/render.py` (HTML and CSS). Change fonts, colors and sections there.
+- **CV design**: a clean, ATS-friendly template. During setup the agent can match the look of your current CV
+  (colors, fonts, alignment) in `my-search/style.css`, always as one column of text, which is what ATS systems
+  read reliably. Ask it to change the look any time.
 - **Hebrew, Arabic and other right-to-left CVs**: set `rtl: true` and the section `labels` in `profile.yaml`.
 - **Two-page CVs**: `max_pages: 2`.
 - **The process**: everything the agent does is plain Markdown in `AGENTS.md` and `workflows/`. Edit it like any document.
@@ -118,8 +120,11 @@ Renders the CVs of Robin Sample, a fictional person, into `examples/demo/`.
 **Does my CV need a specific format?** No. Any PDF, Word or text file works, and more than one version is
 better. A scanned PDF (an image) works too in Claude, which can read images.
 
-**Will it keep my CV's design?** No. It extracts the content and renders it in its own template. You can restyle
-the template once and every CV follows.
+**Will it keep my CV's design?** Its look, yes, if you ask: colors, fonts and alignment carry over. Its structure, no:
+two-column and sidebar layouts become one column, because ATS systems often read them out of order.
+
+**One page or two?** One, unless you have 10+ years of experience. The text size adjusts between 9.4 and 11pt to fit,
+and if the page comes out thin, the agent adds your next most relevant achievement rather than padding.
 
 **Codex or Claude Code?** Both read the same instructions (`AGENTS.md`). The differences: Claude Code has the
 `/job-...` commands and runs the review in a separate subagent; in Codex, the browser extension works in the Codex

@@ -46,10 +46,14 @@ paras = "".join(f"<p>{esc(x.strip())}</p>" for x in re.split(r"\n\s*\n", body) i
 d_attr = ' dir="rtl"' if p.get("rtl") else ""
 page = (f'<!doctype html><html{d_attr}><head><meta charset="utf-8">'
         '<link href="https://fonts.googleapis.com/css2?family=Questrial&family=Roboto:wght@400;700&display=block" rel="stylesheet">'
-        "<style>@page{size:A4;margin:0}body{margin:0;font-family:'Roboto',Arial,sans-serif;color:#333;font-size:10.5pt;line-height:1.5}"
-        ".page{padding:18mm 20mm}h1{font-family:'Questrial','Roboto',Arial,sans-serif;font-weight:400;letter-spacing:.08em;"
-        "font-size:22pt;color:#444;margin:0;text-transform:uppercase}.contact{font-size:9pt;color:#555;margin:4pt 0 18pt}"
-        f"p{{margin:0 0 9pt}}</style><title>{esc(p['name'])} - Cover Letter</title></head><body><div class=page>"
+        "<style>@page{size:A4;margin:0}:root{--text:#333;--name:#444;--contact:#444;--muted:#999;"
+        "--font-body:'Roboto',Arial,sans-serif;--font-head:'Questrial','Roboto',Arial,sans-serif;--align-head:left;--case-head:uppercase}"
+        "body{margin:0;font-family:var(--font-body);color:var(--text);font-size:10.5pt;line-height:1.5}"
+        ".page{padding:18mm 20mm}h1{font-family:var(--font-head);font-weight:400;letter-spacing:.08em;text-align:var(--align-head);"
+        "font-size:22pt;color:var(--name);margin:0;text-transform:var(--case-head)}"
+        ".contact{font-size:9pt;color:var(--contact);text-align:var(--align-head);margin:4pt 0 18pt}"
+        f"p{{margin:0 0 9pt}}</style><style>{p.get('_css', '')}</style>"
+        f"<title>{esc(p['name'])} - Cover Letter</title></head><body><div class=page>"
         f"<h1>{esc(p['name'])}</h1><div class=contact>{contact}</div>{paras}</div></body></html>")
 out = os.path.join(d, f"{safe(p['name'])} - Cover Letter.pdf")
 pages = to_pdf(page, out)

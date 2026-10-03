@@ -22,11 +22,27 @@ def load_yaml(path):
         return yaml.safe_load(f) or {}
 
 
+# style.css may restyle the CV (colors, fonts, alignment) but not its structure: one text column keeps it ATS-readable.
+STYLE_BANNED = [(r"column|grid|display\s*:\s*(inline-)?(flex|table)|float\s*:|(?<![-\w])(position|transform|zoom)\s*:",
+                 "side-by-side, positioned or transformed layout (breaks ATS reading order and the page fit)"),
+                (r"(^|[},\s])(html|body|\.page)\s*\{[^}]*\bfont(-size)?\s*:", "a font size on html/body/.page (the build sizes the text to fit the page)"),
+                (r"gradient\(|image\s*:|url\((?!['\"]?https://fonts\.(googleapis|gstatic)\.com)", "images or gradients (ATS can't read them)"),
+                (r"content\s*:", "generated text (ATS may not read it)"),
+                (r"letter-spacing\s*:\s*(0?\.(1[1-9]|[2-9])|[1-9][\d.]*)\s*em", "letter-spacing above .1em (ATS splits the words)")]
+
+
 def load_profile(ws):
     p = load_yaml(os.path.join(ws, "profile.yaml"))
     for k in ("name", "experience"):
         if not p.get(k):
             sys.exit(f"profile.yaml has no '{k}'.")
+    css_path = os.path.join(ws, "style.css")
+    if os.path.exists(css_path):
+        css = open(css_path, encoding="utf-8").read()
+        bad = [why for pat, why in STYLE_BANNED if re.search(pat, re.sub(r"/\*.*?\*/", "", css, flags=re.S), re.I)]
+        if bad:
+            sys.exit("style.css isn't allowed to use: " + "; ".join(bad))
+        p["_css"] = css
     return p
 
 
