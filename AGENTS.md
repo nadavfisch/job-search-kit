@@ -10,6 +10,8 @@ If `my-search/profile.yaml` doesn't exist, the user hasn't been set up yet. Foll
 ## Talk to the user in their language
 Write every message to the user in the language they write to you. CVs, form answers and messages to
 employers are written in the language of the job posting (usually English), unless the user says otherwise.
+Right-to-left languages (Hebrew, Arabic): multiple-choice question dialogs render badly, so write those dialogs
+(question and options) in English; everything else stays in the user's language.
 
 ## The two rules that matter most
 1. **Never invent experience.** Every claim in a CV, form answer or message comes from `my-search/profile.yaml`
@@ -111,7 +113,9 @@ Use them when they're connected and `preferences.md` says the user wants them; o
 
 ## Browser
 Submitting and finding contacts need a browser agent signed in to the user's accounts: Claude in Chrome
-(Claude Code), or the Codex Chrome extension (Codex app). Without one, prepare everything (PDF path,
+(Claude Code), or the Codex Chrome extension (Codex app). Before the first action on each new site in a session,
+tell the user on its own line, in English (the prompt is in English):
+`👉 Permission prompt for <site>: choose "Yes, allow <site> for this session"`. It can't be turned off in settings. Without one, prepare everything (PDF path,
 link, every form answer) and the user submits by hand.
 
 LinkedIn's User Agreement forbids automated access. `kit/search.py` uses public guest pages and the browser
