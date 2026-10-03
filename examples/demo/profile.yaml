@@ -1,0 +1,49 @@
+# Demo profile of a fictional person. Try: python3 kit/build.py --workspace examples/demo 1
+name: Robin Sample
+headline: Operations & Automation Lead
+contact:
+  phone: "+1 555 0100"
+  email: robin@example.com
+  location: Austin, TX
+links:
+  - {label: LinkedIn, url: "https://www.linkedin.com/in/example"}
+  - {label: Portfolio, url: "https://example.com"}
+summary: >
+  Operations lead with 7 years turning manual back-office work into automated systems. At Acme Analytics,
+  owned billing, support, and reporting for a 40-person B2B SaaS company and automated most of it with
+  Zapier, Python, and LLM-based tools.
+
+experience:
+  - key: acme
+    header: "Operations Manager | Acme Analytics - B2B SaaS | 2021-Present"
+    bullets:
+      acme_billing: "Automated billing and collections end to end (invoicing, renewals, dunning), cutting the monthly close from 3 days to 4 hours."
+      acme_support: "Built the support function from zero: SLAs, a 120-article knowledge base, and an LLM triage bot that resolves 45% of tickets without a human."
+      acme_support_short: "Built support from zero, including an LLM triage bot resolving 45% of tickets."
+      acme_reporting: "Built 15 Looker Studio dashboards for leadership, replacing weekly spreadsheet reports."
+      acme_onboarding: "Ran onboarding for 60+ enterprise customers, working with Sales and Engineering on each rollout."
+    default: [acme_billing, acme_support, acme_reporting]
+  - key: initech
+    header: "Operations Analyst | Initech - Logistics | 2018-2021"
+    bullets:
+      initech_routing: "Rebuilt the delivery scheduling process in Google Sheets and Apps Script, saving the dispatch team 10 hours a week."
+      initech_vendors: "Managed relationships with 25 vendors, including contract renewals and monthly performance reviews."
+    default: [initech_routing, initech_vendors]
+
+education:
+  - "B.A. Economics | University of Texas at Austin | 2018"
+
+skills:
+  auto: {label: "Automation", text: "Zapier, Make, Google Apps Script, REST APIs, webhooks, Python (basic)"}
+  ai: {label: "AI", text: "OpenAI API, prompt engineering, LLM support bots"}
+  data: {label: "Data", text: "SQL, Looker Studio, Excel"}
+  ops: {label: "Operations", text: "billing & collections, support operations, SLAs, vendor management, customer onboarding"}
+
+languages: "English (native), Spanish (professional)"
+
+rules:
+  overlaps:
+    - [acme_support, acme_support_short]
+  banned:
+    - {pattern: "\\b(software engineer|developer)\\b", why: "Robin isn't a developer"}
+  title_banned: "\\b(Director|Head|VP|Chief)\\b"

@@ -1,0 +1,47 @@
+# Your approved facts. Every CV is built only from what's in this file.
+# The agent fills it during setup from your existing CV, and you confirm it.
+# A new fact (a number, a tool, an achievement) gets in only after you approve it.
+
+name: ""
+headline: ""               # default CV title, e.g. "Operations & Automation Lead"
+contact:
+  phone: ""
+  email: ""
+  location: ""             # e.g. "Tel Aviv, Israel"
+links:                     # shown in the CV header, in this order
+  # - {label: LinkedIn, url: "https://www.linkedin.com/in/..."}
+  # - {label: Portfolio, url: "https://..."}
+summary: >                 # default summary (3-4 lines)
+
+
+# Reverse-chronological: newest role first. The CV always keeps this order.
+# Bullet keys are short ids (role prefix + topic). A CV picks bullets by key.
+experience:
+  # - key: acme
+  #   header: "Operations Manager | Acme Corp - B2B SaaS | 2022-Present"
+  #   bullets:
+  #     acme_billing: "Automated billing and collections end to end, cutting monthly close from 3 days to 4 hours."
+  #     acme_support: "Built the support function from zero: SLAs, knowledge base, and a 4-person team."
+  #   default: [acme_billing, acme_support]     # bullets for the general CV (optional)
+
+education:                 # optional, one line each
+  # - "B.Sc. Industrial Engineering | Tel Aviv University | 2018"
+
+skills:                    # skills lines a CV can pick by key
+  # ai: {label: "AI & Automation", text: "Claude API, OpenAI API, Zapier, n8n, prompt engineering"}
+  # data: {label: "Data & Analytics", text: "SQL, Looker Studio, Mixpanel, Excel"}
+
+languages: ""              # e.g. "English (native), Hebrew (fluent)"
+
+# Optional
+max_pages: 1
+rtl: false                 # true for a right-to-left CV (Hebrew, Arabic)
+labels: {}                 # rename sections, e.g. {experience: "ניסיון תעסוקתי", skills: "כישורים"}
+
+# Your guardrails. build.py refuses to render a CV that breaks them.
+rules:
+  overlaps: []             # groups of bullets that say the same thing; a CV may use one per group
+                           # e.g. [[acme_support, acme_support_short]]
+  banned: []               # phrases that misrepresent you
+                           # e.g. {pattern: "\\bdeveloper\\b", why: "don't present me as a developer"}
+  title_banned: ""         # levels you don't claim in a title, e.g. "\\b(Director|Head|VP)\\b"

@@ -1,0 +1,23 @@
+# Where kit/search.py looks for jobs. Every source is optional.
+days: 14                    # only jobs posted in the last N days
+
+# 1. LinkedIn public job search (LinkedIn's terms forbid automated access: low volume, your own risk)
+linkedin:
+  location: ""              # e.g. "Israel", "Berlin, Germany"
+  geo_id: ""                # optional LinkedIn geoId, sharper than the text (Israel: "101620260")
+  queries: []               # 10-30 keyword searches, e.g. "operations manager", "AI automation"
+
+# 2. Target companies' own job boards (official public APIs, no scraping)
+#    Find a company's board: python3 kit/sources.py guess "<company name>"
+#                        or: python3 kit/sources.py detect <careers page url>
+title_keywords: []          # a job matches if its title contains any of these, e.g. "operations", "automation"
+title_exclude: []           # e.g. "intern", "director"
+locations: []               # match if the location contains any, e.g. "Tel Aviv", "Israel", "Remote". Empty = anywhere
+companies: []
+  # - {name: "Acme", ats: greenhouse, slug: "acme"}
+  # - {name: "Acme", ats: comeet, url: "https://www.comeet.com/jobs/acme/XX.XXX"}
+
+# 3. Remote job boards (Remotive)
+remote:
+  queries: []               # e.g. "operations", "automation"
+  allowed_locations: []     # keep jobs open to these, e.g. "worldwide", "anywhere", "europe", "israel". Empty = all

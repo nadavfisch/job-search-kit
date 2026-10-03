@@ -1,0 +1,11 @@
+ID: demo-1
+TITLE: Operations Automation Lead
+COMPANY: Globex (fictional)
+URL: https://example.com/jobs/1
+---
+Globex is looking for an Operations Automation Lead to own our back-office processes and automate them.
+You will: map manual workflows across Finance and Support and automate them (Zapier, Make, APIs);
+own billing operations and collections; build support tooling, including LLM-based ticket triage;
+report on operational KPIs to leadership with clear dashboards.
+Requirements: 4+ years in operations or business systems; hands-on with no-code automation and APIs;
+experience with LLM tools is a plus; SQL; strong written English.

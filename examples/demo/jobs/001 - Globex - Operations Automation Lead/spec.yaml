@@ -1,0 +1,18 @@
+company: Globex
+role: Operations Automation Lead
+link: https://example.com/jobs/1
+title: Operations Automation Lead
+summary: >
+  Operations lead with 7 years automating back-office work across billing, support, and reporting.
+  At Acme Analytics, automated billing and collections end to end and built an LLM triage bot that resolves
+  45% of support tickets, using Zapier, Make, APIs, and SQL.
+experience:
+  - role: acme
+    bullets:
+      - acme_billing
+      - from: acme_support
+        text: "Built support tooling from zero, including LLM-based ticket triage resolving 45% of tickets, plus SLAs and a 120-article knowledge base."
+      - acme_reporting
+  - role: initech
+    bullets: [initech_routing]
+skills: [auto, ai, data, ops]

@@ -1,0 +1,6 @@
+# Your personal data never leaves your machine
+my-search/
+
+__pycache__/
+*.pyc
+.DS_Store
