@@ -1,6 +1,6 @@
 """Record an event in my-search/log.md (the dated history of the whole search).
 
-  python3 kit/log.py <event> [--job N] [--company X] [--details "..."] [--date YYYY-MM-DD]
+  python3 kit/log.py <event> [--job N] [--company X] [--details "..."] [--date "YYYY-MM-DD HH:MM"]
 
 Events: added, submitted, message-sent, follow-up-sent, reply, interview, assessment, rejected, offer,
 withdrawn, closed, note. --job fills the company from the tracker.
@@ -13,7 +13,7 @@ EVENTS = {"added", "submitted", "message-sent", "follow-up-sent", "reply", "inte
           "rejected", "offer", "withdrawn", "closed", "note"}
 ap = argparse.ArgumentParser()
 ap.add_argument("event"); ap.add_argument("--job", type=int); ap.add_argument("--company", default="")
-ap.add_argument("--details", default=""); ap.add_argument("--date", default=datetime.date.today().isoformat())
+ap.add_argument("--details", default=""); ap.add_argument("--date", default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
 ap.add_argument("--workspace")
 a = ap.parse_args()
 if a.event not in EVENTS:

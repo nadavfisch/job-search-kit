@@ -23,6 +23,7 @@ Auto-skip a job when (examples, edit to fit):
 - Approval: ask me before each submission
   <!-- or: "blanket: submit every job marked apply/stretch without asking" -->
 - Show me each CV before it's sent: yes
+- LinkedIn pace: at most 15 Easy Apply a day, 5 an hour, 3 minutes apart; about 20 profile views a day
 - Referral jobs (someone I know works there): don't apply directly. Prepare a message for my contact.
 
 ## Decisions

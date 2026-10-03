@@ -9,6 +9,8 @@ write to again, and nobody gets a second cold note.
 Using the browser (LinkedIn people search, the company site), find up to 3 people:
 the likely hiring manager (the team the job sits in), a team member, a recruiter for that team.
 Mark the best one ⭐. Prefer people who are active (recent posts) and any mutual connections.
+LinkedIn pace: search, then open only the profiles you'll actually list (at most 3 per job, about 20 a day).
+Mass profile viewing is one of the things LinkedIn flags.
 
 ## 2. outreach.md in the job folder
 For each person:

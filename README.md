@@ -1,5 +1,7 @@
 # Job Search Kit
 
+![Job Search Kit](docs/social-preview.png)
+
 A job search run by your AI coding agent ([Claude Code](https://claude.com/claude-code) or [Codex](https://openai.com/codex)).
 It finds jobs, tailors a truthful one-page CV to each one, checks it, helps you apply, and drafts the follow-ups.
 Everything runs on your machine, and your data stays in one git-ignored folder.
@@ -97,8 +99,11 @@ during the conversation, like any other chat.
 ## LinkedIn
 
 The search reads LinkedIn's public (logged-out) job pages, and applying uses your own browser session.
-LinkedIn's User Agreement forbids automated access, so keep the volume low; the kit pauses between requests.
-The risk to your account is yours. You can skip the search entirely and paste jobs in yourself.
+LinkedIn's User Agreement forbids automated access. The search runs logged out, so it isn't tied to your account;
+applying runs in your own logged-in browser, so it is. LinkedIn restricts accounts mostly on behavior (many actions in
+a row at machine speed), so the kit keeps a human pace by default: at most 15 Easy Apply a day, 5 an hour, 3 minutes
+apart, and only a few profile views per job. You can change the limits. The worst likely outcome is a temporary
+restriction with an identity check, but the risk to your account is yours.
 
 ## Make it yours
 

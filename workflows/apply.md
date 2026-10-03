@@ -11,6 +11,9 @@ A job that isn't "ready" isn't submitted until it's fixed. Order: newest posting
 With blanket approval, still open them once when a batch becomes ready, unless preferences say not to.
 
 ## 1. Per job
+**LinkedIn pace:** before every LinkedIn submission, `python3 kit/pace.py`. WAIT: do other work (company-site forms,
+the next job's answers) and check again; never sleep in a loop. STOP: no more LinkedIn submissions today.
+Defaults: 15 a day, 5 an hour, 3 minutes apart (the user can change them in preferences.md).
 1. Open the posting. Still open? Not already applied (tracker "Submitted", and the page itself)?
    Closed → status `closed` in the tracker and `python3 kit/log.py closed --job N`, next job.
 2. Note how to apply: LinkedIn Easy Apply, or the company's site (Greenhouse, Lever, Comeet, Workday...).
@@ -22,7 +25,8 @@ With blanket approval, still open them once when a batch becomes ready, unless p
 6. Untick "Follow <company>" and newsletter boxes.
 7. Submit only within the approval policy. Then confirm the page says the application was sent.
 8. Tracker row: status `submitted`, Submitted = today, Follow-up = today + 7 days. Then
-   `python3 kit/log.py submitted --job N --details "<how: Easy Apply / Greenhouse form / ...>"`.
+   `python3 kit/log.py submitted --job N --details "<how: LinkedIn Easy Apply / Greenhouse form / ...>"`. Log it right
+   away: pace.py counts these lines.
 
 ## 2. After the round
 Report briefly: what was submitted, what needs the user (a CAPTCHA, a login, a manual upload), and every open

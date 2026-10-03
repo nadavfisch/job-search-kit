@@ -105,8 +105,11 @@ Write `my-search/search.yaml`:
 - Email alerts: if they use email, suggest they set job alerts on the job sites they like (for Israel: AllJobs,
   Drushim; elsewhere: Indeed, Glassdoor, Wellfound) and on LinkedIn. `workflows/inbox.md` reads them.
 Run `python3 kit/search.py --only companies,remote` once to confirm the companies resolve.
-Tell them once, plainly: the search reads LinkedIn's public job pages and applying uses their own browser,
-and LinkedIn's terms forbid automation, so volumes stay low and the risk is theirs.
+Tell them once, plainly: the search reads LinkedIn's public job pages (not tied to their account) and applying uses
+their own logged-in browser (tied to their account). LinkedIn's terms forbid automation and it restricts accounts
+mostly on behavior: many actions in a row at machine speed. So the kit keeps a human pace by default (15 Easy Apply
+a day, 3 minutes apart, few profile views; `kit/pace.py` checks it). The worst likely outcome is a temporary
+restriction with an identity check; it's their call and their risk. They can change the limits in preferences.md.
 
 ## 7b. Fewer permission prompts
 The agent asks the user before running scripts and before every browser action. That's safe, but in a

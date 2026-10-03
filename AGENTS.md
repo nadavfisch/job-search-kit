@@ -85,6 +85,7 @@ python3 kit/preview.py <n ...|master>        open CVs in the PDF viewer for the 
 python3 kit/letter.py <n> [--check]           cover letter -> PDF
 python3 kit/log.py <event> --job N --details "..."
 python3 kit/stats.py                          pipeline, response rates by source, follow-ups due
+python3 kit/pace.py                           before every LinkedIn submission: OK / WAIT / STOP
 python3 kit/render.py --check                 is Chrome available for PDF rendering?
 ```
 `build.py` refuses to render a CV with an invented number, an unknown bullet, a duplicate, or anything the
@@ -119,4 +120,5 @@ tell the user on its own line, in English (the prompt is in English):
 link, every form answer) and the user submits by hand.
 
 LinkedIn's User Agreement forbids automated access. `kit/search.py` uses public guest pages and the browser
-works in the user's own session; keep volumes low and human-paced. The user accepts that risk; tell them once, during setup.
+works in the user's own session; keep volumes low and human-paced: `kit/pace.py` before every LinkedIn submission,
+few profile views. The user accepts that risk; tell them once, during setup.

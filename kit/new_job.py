@@ -63,5 +63,5 @@ add_tracker_row(ws, {"#": n, "Company": company, "Role": role, "Source": source,
                      "Applicants": applicants, "Status": a.status, "Link": link})
 log = os.path.join(ws, "log.md")
 if os.path.exists(log):
-    append_row(log, [datetime.date.today().isoformat(), n, company, "added", f"{role} ({source}, {a.status})"])
+    append_row(log, [datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), n, company, "added", f"{role} ({source}, {a.status})"])
 print(d)
