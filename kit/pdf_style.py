@@ -6,7 +6,9 @@ Colors are exact (read from the PDF itself, not guessed from a picture). Sizes a
 with how much text uses it, so the body size and the heading sizes stand out. First page only.
 A Word file: save it as PDF first.
 """
-import collections, sys
+
+import collections
+import sys
 import pypdf
 from pypdf.generic import ContentStream
 
@@ -25,7 +27,7 @@ for operands, op in ContentStream(page.get_contents(), reader).operations:
     if op in (b"rg", b"sc", b"scn") and len(operands) == 3:
         fills[hexc(operands)] += 1
     elif op == b"g" and len(operands) == 1:
-        fills[hexc(operands * 3)] += 1   # gray
+        fills[hexc(operands * 3)] += 1  # gray
     elif op in (b"RG", b"SC", b"SCN") and len(operands) == 3:
         strokes[hexc(operands)] += 1
 sizes = collections.Counter()

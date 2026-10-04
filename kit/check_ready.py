@@ -6,8 +6,13 @@ Per job: the CV PDF for the current spec.yaml title exists, fits max_pages, stil
 exists, is newer than the PDF, and its verdict isn't ❌. Exits 1 if anything isn't ready.
 Not checked: whether the posting is still open. Look at the job page before submitting.
 """
-import argparse, os, re, sys
+
+import argparse
+import os
+import re
+import sys
 import pypdf
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import workspace, load_profile, load_yaml, read_text, read_tracker, job_dirs, cv_path, cv_pdfs
 from build import problems
@@ -28,7 +33,7 @@ else:
 
 
 def flat(t):
-    return re.sub(r"\s+", "", t)   # PDF line breaks land anywhere
+    return re.sub(r"\s+", "", t)  # PDF line breaks land anywhere
 
 
 def check(n, d):
@@ -49,7 +54,7 @@ def check(n, d):
     max_pages = int(p.get("max_pages", 1))
     if len(reader.pages) > max_pages:
         issues.append(f"the PDF has {len(reader.pages)} pages, max_pages is {max_pages} (re-render: kit/build.py {n})")
-    if not p.get("rtl"):   # extracted RTL text comes out reordered, so it can't be compared
+    if not p.get("rtl"):  # extracted RTL text comes out reordered, so it can't be compared
         text = flat("".join(pg.extract_text() for pg in reader.pages))
         parts = [spec["summary"]] + [t for _, ts in spec["experience"] for t in ts]
         if any(flat(x) not in text for x in parts if x):

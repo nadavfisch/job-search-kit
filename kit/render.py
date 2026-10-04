@@ -7,7 +7,13 @@ A spec is what build.py produces from profile.yaml + a job's spec.yaml:
    "skills": [(label, text), ...], "education": bool}
 Layout shrinks step by step (font, spacing) until the CV fits in profile["max_pages"] (default 1).
 """
-import html, os, shutil, subprocess, sys, tempfile
+
+import html
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
 import pypdf
 
 CHROME_CANDIDATES = [
@@ -19,7 +25,7 @@ CHROME_CANDIDATES = [
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
     r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
 ]
-if os.environ.get("LOCALAPPDATA"):   # Chrome installed for one Windows user only
+if os.environ.get("LOCALAPPDATA"):  # Chrome installed for one Windows user only
     CHROME_CANDIDATES.append(os.path.join(os.environ["LOCALAPPDATA"], r"Google\Chrome\Application\chrome.exe"))
 CHROME_NAMES = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "chrome"]
 NO_CHROME = "No Chrome, Chromium or Edge found. Install Google Chrome, or set CHROME_PATH to the browser binary."
@@ -70,12 +76,17 @@ li { margin: 0 0 1pt; }
 
 
 def esc(t):
-    return html.escape(str(t))   # quotes too: some of it goes into href="..."
+    return html.escape(str(t))  # quotes too: some of it goes into href="..."
 
 
 def build_html(profile, spec, fs, lh, top, sect, job):
-    css = (CSS.replace("@FS@", str(fs)).replace("@LH@", str(lh)).replace("@TOP@", str(top))
-           .replace("@SECT@", str(sect)).replace("@JOB@", str(job)))
+    css = (
+        CSS.replace("@FS@", str(fs))
+        .replace("@LH@", str(lh))
+        .replace("@TOP@", str(top))
+        .replace("@SECT@", str(sect))
+        .replace("@JOB@", str(job))
+    )
     labels = {**LABELS, **(profile.get("labels") or {})}
     c = profile.get("contact") or {}
     items = []
@@ -85,12 +96,14 @@ def build_html(profile, spec, fs, lh, top, sect, job):
         items.append(f'<a href="mailto:{esc(c["email"])}">{esc(c["email"])}</a>')
     if c.get("location"):
         items.append(esc(c["location"]))
-    items += [f'<a href="{esc(l["url"])}">{esc(l["label"])}</a>' for l in profile.get("links") or []]
+    items += [f'<a href="{esc(link["url"])}">{esc(link["label"])}</a>' for link in profile.get("links") or []]
     roles = {r["key"]: r for r in profile["experience"]}
-    sep = f'<span class="sep"> {esc(profile.get("separator") or "|")} </span>'   # between contact items and header parts
+    sep = f'<span class="sep"> {esc(profile.get("separator") or "|")} </span>'  # between contact items and header parts
 
-    parts = [f'<div class="page"><h1>{esc(profile["name"])}</h1><div class="role">{esc(spec["title"])}</div>',
-             f'<div class="contact">{sep.join(f"<span class=item>{x}</span>" for x in items)}</div>']
+    parts = [
+        f'<div class="page"><h1>{esc(profile["name"])}</h1><div class="role">{esc(spec["title"])}</div>',
+        f'<div class="contact">{sep.join(f"<span class=item>{x}</span>" for x in items)}</div>',
+    ]
     if spec.get("summary"):
         parts.append(f'<div class="summary">{esc(spec["summary"])}</div>')
     parts.append(f'<div class="sect"><h2>{esc(labels["experience"])}</h2>')
@@ -104,16 +117,18 @@ def build_html(profile, spec, fs, lh, top, sect, job):
         lis = "".join(f"<li>{esc(e)}</li>" for e in profile["education"])
         parts.append(f'<div class="sect"><h2>{esc(labels["education"])}</h2><ul class="edu">{lis}</ul></div>')
     if spec.get("skills"):
-        lis = "".join(f"<li><b>{esc(l)}:</b> {esc(t)}</li>" for l, t in spec["skills"])
+        lis = "".join(f"<li><b>{esc(label)}:</b> {esc(t)}</li>" for label, t in spec["skills"])
         parts.append(f'<div class="sect"><h2>{esc(labels["skills"])}</h2><ul class="skills">{lis}</ul></div>')
     if profile.get("languages"):
         parts.append(f'<div><h2>{esc(labels["languages"])}</h2><p class="plain">{esc(profile["languages"])}</p></div>')
     parts.append("</div>")
     d = ' dir="rtl"' if profile.get("rtl") else ""
-    head = (f'<!doctype html><html{d}><head><meta charset="utf-8">'
-            '<link href="https://fonts.googleapis.com/css2?family=Questrial&family=Roboto:wght@400;700&display=block" rel="stylesheet">'
-            f'<style>{css}</style><style>{profile.get("_css", "")}</style>'
-            f'<title>{esc(profile["name"])} - CV</title></head><body>')
+    head = (
+        f'<!doctype html><html{d}><head><meta charset="utf-8">'
+        '<link href="https://fonts.googleapis.com/css2?family=Questrial&family=Roboto:wght@400;700&display=block" rel="stylesheet">'
+        f"<style>{css}</style><style>{profile.get('_css', '')}</style>"
+        f"<title>{esc(profile['name'])} - CV</title></head><body>"
+    )
     return head + "".join(parts) + "</body></html>"
 
 
@@ -125,9 +140,21 @@ def to_pdf(html_text, out):
         f.write(html_text)
         path = f.name
     try:
-        subprocess.run([chrome, "--headless=new", "--disable-gpu", "--no-pdf-header-footer",
-                        "--virtual-time-budget=8000", f"--print-to-pdf={out}", path],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, timeout=120)
+        subprocess.run(
+            [
+                chrome,
+                "--headless=new",
+                "--disable-gpu",
+                "--no-pdf-header-footer",
+                "--virtual-time-budget=8000",
+                f"--print-to-pdf={out}",
+                path,
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
+            timeout=120,
+        )
     except (subprocess.SubprocessError, OSError) as e:
         sys.exit(f"Chrome couldn't render the PDF: {e}")
     finally:

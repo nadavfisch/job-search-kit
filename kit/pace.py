@@ -7,12 +7,19 @@ Exit 0 = OK to submit now; exit 1 = wait (the gap or the hourly cap) or stop for
 LinkedIn restricts accounts mostly on behavior: dozens of applications in a row at machine speed is what it
 looks for. A human pace keeps the account safe. The user can change the limits (preferences.md).
 """
-import argparse, datetime, os, re, sys
+
+import argparse
+import datetime
+import os
+import re
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import workspace, read_text, cells
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--per-day", type=int, default=15); ap.add_argument("--per-hour", type=int, default=5)
+ap.add_argument("--per-day", type=int, default=15)
+ap.add_argument("--per-hour", type=int, default=5)
 ap.add_argument("--gap", type=int, default=3, help="minutes between submissions")
 ap.add_argument("--workspace")
 a = ap.parse_args()
@@ -28,7 +35,9 @@ today = [t for t in times if t.date() == now.date()]
 hour = [t for t in today if now - t < datetime.timedelta(hours=1)]
 last = max(today, default=None)
 mins = int((now - last).total_seconds() // 60) if last else None
-status = f"{len(today)}/{a.per_day} today, {len(hour)}/{a.per_hour} this hour" + (f", last {mins} min ago" if last else "")
+status = f"{len(today)}/{a.per_day} today, {len(hour)}/{a.per_hour} this hour" + (
+    f", last {mins} min ago" if last else ""
+)
 if len(today) >= a.per_day:
     sys.exit(f"STOP for today: {status}. Continue tomorrow, or with company-site applications.")
 if len(hour) >= a.per_hour:

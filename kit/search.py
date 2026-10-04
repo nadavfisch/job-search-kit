@@ -11,7 +11,16 @@ Results merge into batches/<batch>/jobs_all.json. Jobs seen in an earlier batch 
 
 LinkedIn's User Agreement forbids automated access: keep the volume low and use it at your own risk.
 """
-import argparse, datetime, html, os, re, sys, time, urllib.parse
+
+import argparse
+import datetime
+import html
+import os
+import re
+import sys
+import time
+import urllib.parse
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import workspace, load_yaml, load_json, save_json, write_text
 import sources
@@ -32,7 +41,7 @@ jd_dir = os.path.join(out_dir, "jd")
 os.makedirs(jd_dir, exist_ok=True)
 jobs_file = os.path.join(out_dir, "jobs_all.json")
 jobs = load_json(jobs_file)
-seen = set()   # job ids from every earlier batch
+seen = set()  # job ids from every earlier batch
 for b in os.listdir(os.path.join(ws, "batches")):
     if os.path.join(ws, "batches", b) != out_dir:
         seen |= set(load_json(os.path.join(ws, "batches", b, "jobs_all.json")))
@@ -56,16 +65,19 @@ def add(j, query=None):
             except Exception as e:
                 desc = ""
                 print(f"  {j['id']}: description failed ({e})")
-        hdr = (f"ID: {j['id']}\nTITLE: {j['title']}\nCOMPANY: {j['company']}\nLOCATION: {j['location']}\n"
-               f"POSTED: {j['date']}\nURL: {j['url']}\nSOURCE: {j['source']}\nAPPLICANTS: \n---\n")
+        hdr = (
+            f"ID: {j['id']}\nTITLE: {j['title']}\nCOMPANY: {j['company']}\nLOCATION: {j['location']}\n"
+            f"POSTED: {j['date']}\nURL: {j['url']}\nSOURCE: {j['source']}\nAPPLICANTS: \n---\n"
+        )
         write_text(os.path.join(jd_dir, f"{j['id']}.txt"), hdr + (desc or ""))
 
 
 def wanted(j, keywords, exclude, locations):
     t, loc = (j["title"] or "").lower(), (j["location"] or "").lower()
 
-    def word(k):   # a whole word: "AI" matches "AI Lead", not "Retail"
+    def word(k):  # a whole word: "AI" matches "AI Lead", not "Retail"
         return re.search(rf"(?<![a-z0-9]){re.escape(k.lower())}(?![a-z0-9])", t)
+
     if keywords and not any(word(k) for k in keywords):
         return False
     if any(word(x) for x in exclude):
@@ -90,7 +102,10 @@ if "linkedin" in only and li.get("queries"):
             if li.get("geo_id"):
                 params["geoId"] = li["geo_id"]
             try:
-                t = sources.get("https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?" + urllib.parse.urlencode(params))
+                t = sources.get(
+                    "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?"
+                    + urllib.parse.urlencode(params)
+                )
             except Exception:
                 t = ""
             n = 0
@@ -98,10 +113,22 @@ if "linkedin" in only and li.get("queries"):
                 m = re.search(r"jobPosting:(\d+)", c)
                 if not m:
                     continue
-                comp = card_field(c, r'base-search-card__subtitle">.*?>(.*?)</a>') or card_field(c, r'base-search-card__subtitle">(.*?)</h4>')
-                add(dict(id=m.group(1), title=card_field(c, r'base-search-card__title">(.*?)</h3>'), company=re.sub("<.*?>", "", comp).strip(),
-                         location=card_field(c, r'job-search-card__location">(.*?)</span>'), date=card_field(c, r'datetime="(.*?)"'),
-                         url=f"https://www.linkedin.com/jobs/view/{m.group(1)}", source="linkedin", description=None), q)
+                comp = card_field(c, r'base-search-card__subtitle">.*?>(.*?)</a>') or card_field(
+                    c, r'base-search-card__subtitle">(.*?)</h4>'
+                )
+                add(
+                    dict(
+                        id=m.group(1),
+                        title=card_field(c, r'base-search-card__title">(.*?)</h3>'),
+                        company=re.sub("<.*?>", "", comp).strip(),
+                        location=card_field(c, r'job-search-card__location">(.*?)</span>'),
+                        date=card_field(c, r'datetime="(.*?)"'),
+                        url=f"https://www.linkedin.com/jobs/view/{m.group(1)}",
+                        source="linkedin",
+                        description=None,
+                    ),
+                    q,
+                )
                 n += 1
             results += n
             time.sleep(1.2)
@@ -116,11 +143,15 @@ if "companies" in only:
     for c in cfg.get("companies") or []:
         fetch = sources.ATS.get(c.get("ats", ""))
         if not fetch:
-            print(f"{c.get('name')}: unknown ats '{c.get('ats')}' (one of {', '.join(sources.ATS)})"); continue
+            print(f"{c.get('name')}: unknown ats '{c.get('ats')}' (one of {', '.join(sources.ATS)})")
+            continue
         try:
             hits = [j for j in fetch(c) if wanted(j, kw, ex, locs)]
         except Exception as e:
-            print(f"{c.get('name')}: failed ({e}). Check the slug / url with: python3 kit/sources.py detect <careers url>"); continue
+            print(
+                f"{c.get('name')}: failed ({e}). Check the slug / url with: python3 kit/sources.py detect <careers url>"
+            )
+            continue
         for j in hits:
             add(j)
         print(f"{c.get('name')}: {len(hits)} matching")
@@ -132,7 +163,9 @@ if "remote" in only and rem.get("queries"):
     for q in rem["queries"]:
         try:
             for j in sources.remotive(q):
-                if (not allowed or any(x in j["location"].lower() for x in allowed)) and wanted(j, [], cfg.get("title_exclude") or [], []):
+                if (not allowed or any(x in j["location"].lower() for x in allowed)) and wanted(
+                    j, [], cfg.get("title_exclude") or [], []
+                ):
                     add(j, q)
         except Exception as e:
             print(f"Remotive '{q}': failed ({e})")
@@ -140,7 +173,10 @@ if "remote" in only and rem.get("queries"):
 
 save_json(jobs_file, jobs)
 new = sum(1 for j in jobs.values() if j.get("new"))
-print(f"{len(jobs)} jobs in batch {a.batch} ({new} new). Added now: "
-      + (", ".join(f"{k} {v}" for k, v in counts.items()) or "none") + f"\n-> {jobs_file}")
+print(
+    f"{len(jobs)} jobs in batch {a.batch} ({new} new). Added now: "
+    + (", ".join(f"{k} {v}" for k, v in counts.items()) or "none")
+    + f"\n-> {jobs_file}"
+)
 if counts.get("linkedin"):
     print(f"Next: python3 kit/fetch_jd.py {a.batch} new")

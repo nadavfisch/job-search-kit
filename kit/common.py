@@ -3,7 +3,11 @@
 Your data lives in a workspace folder, by default my-search/ at the repo root (git-ignored).
 Override it with --workspace PATH or the JOBKIT_WORKSPACE environment variable.
 """
-import json, os, re, sys
+
+import json
+import os
+import re
+import sys
 import yaml
 
 KIT = os.path.dirname(os.path.abspath(__file__))
@@ -46,11 +50,21 @@ def save_json(path, data):
 
 
 # style.css may restyle the CV (colors, fonts, alignment) but not its structure: one text column keeps it ATS-readable.
-STYLE_BANNED = [(r"column|grid|display\s*:\s*(inline-)?(flex|table)|float\s*:|(?<![-\w])(position|transform|zoom)\s*:",
-                 "side-by-side, positioned or transformed layout (breaks ATS reading order and the page fit)"),
-                (r"(^|[},\s])(html|body|\.page)\s*\{[^}]*\bfont(-size)?\s*:", "a font size on html/body/.page (the build sizes the text to fit the page)"),
-                (r"gradient\(|image\s*:|url\((?!['\"]?https://fonts\.(googleapis|gstatic)\.com)", "images or gradients (ATS can't read them)"),
-                (r"content\s*:", "generated text (ATS may not read it)")]
+STYLE_BANNED = [
+    (
+        r"column|grid|display\s*:\s*(inline-)?(flex|table)|float\s*:|(?<![-\w])(position|transform|zoom)\s*:",
+        "side-by-side, positioned or transformed layout (breaks ATS reading order and the page fit)",
+    ),
+    (
+        r"(^|[},\s])(html|body|\.page)\s*\{[^}]*\bfont(-size)?\s*:",
+        "a font size on html/body/.page (the build sizes the text to fit the page)",
+    ),
+    (
+        r"gradient\(|image\s*:|url\((?!['\"]?https://fonts\.(googleapis|gstatic)\.com)",
+        "images or gradients (ATS can't read them)",
+    ),
+    (r"content\s*:", "generated text (ATS may not read it)"),
+]
 # Letters spaced .1em apart or more come out of PDF text extraction (pdftotext, pdfminer) as one word per letter.
 MAX_LETTER_SPACING = 0.08
 
@@ -60,7 +74,9 @@ def style_problems(css):
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
     bad = [why for pat, why in STYLE_BANNED if re.search(pat, css, re.I)]
     for value in re.findall(r"letter-spacing\s*:\s*([^;}]*)", css, re.I):
-        m = re.fullmatch(r"(normal|inherit|initial|unset|-?0*\.?0+[a-z%]*|(-?\d*\.?\d+)em)(\s*!important)?", value.strip(), re.I)
+        m = re.fullmatch(
+            r"(normal|inherit|initial|unset|-?0*\.?0+[a-z%]*|(-?\d*\.?\d+)em)(\s*!important)?", value.strip(), re.I
+        )
         if not m or (m.group(2) and float(m.group(2)) > MAX_LETTER_SPACING):
             bad.append(f"letter-spacing above {MAX_LETTER_SPACING:g}em, or not in em (ATS reads each letter as a word)")
             break
@@ -97,7 +113,19 @@ def safe(t):
 
 
 # --- tracker.md: one markdown table, one row per job ---
-TRACKER_COLS = ["#", "Company", "Role", "Source", "Posted", "Applicants", "Status", "Submitted", "Response", "Follow-up", "Link"]
+TRACKER_COLS = [
+    "#",
+    "Company",
+    "Role",
+    "Source",
+    "Posted",
+    "Applicants",
+    "Status",
+    "Submitted",
+    "Response",
+    "Follow-up",
+    "Link",
+]
 
 
 def tracker_path(ws):
@@ -168,5 +196,8 @@ def letter_path(folder, name, ext=".pdf"):
 def cv_pdfs(folder, name):
     """Every CV PDF in a folder, whatever its title. Never the cover letter."""
     prefix, letter = f"{safe(name)} - ", os.path.basename(letter_path(folder, name))
-    return sorted(os.path.join(folder, f) for f in (os.listdir(folder) if os.path.isdir(folder) else [])
-                  if f.startswith(prefix) and f.endswith(".pdf") and f != letter)
+    return sorted(
+        os.path.join(folder, f)
+        for f in (os.listdir(folder) if os.path.isdir(folder) else [])
+        if f.startswith(prefix) and f.endswith(".pdf") and f != letter
+    )

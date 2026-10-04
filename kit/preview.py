@@ -5,7 +5,12 @@
 
 Prints the paths too, for when nothing can be opened (a remote machine).
 """
-import argparse, os, subprocess, sys
+
+import argparse
+import os
+import subprocess
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import workspace, load_profile, job_dirs, cv_pdfs, letter_path
 
