@@ -37,6 +37,7 @@ languages: ""              # e.g. "English (native), Hebrew (fluent)"
 max_pages: 1               # 2 only with 10+ years of experience
 rtl: false                 # true for a right-to-left CV (Hebrew, Arabic)
 labels: {}                 # rename sections, e.g. {experience: "ניסיון תעסוקתי", skills: "כישורים"}
+separator: "|"             # between contact items and the parts of a role line, e.g. "·"
 
 # Your guardrails. build.py refuses to render a CV that breaks them.
 rules:

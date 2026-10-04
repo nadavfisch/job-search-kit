@@ -5,21 +5,25 @@
 
 Prints the paths too, for when nothing can be opened (a remote machine).
 """
-import argparse, glob, os, subprocess, sys
+import argparse, os, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import workspace, load_profile, job_dirs, safe
+from common import workspace, load_profile, job_dirs, cv_pdfs, letter_path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("which", nargs="+", help="job numbers and/or 'master'")
 ap.add_argument("--workspace")
 a = ap.parse_args()
 ws = workspace(a.workspace)
-name = safe(load_profile(ws)["name"])
+name = load_profile(ws)["name"]
 dirs = job_dirs(ws)
 files = []
 for w in a.which:
     d = os.path.join(ws, "master") if w == "master" else dirs.get(int(w)) if w.isdigit() else None
-    found = sorted(glob.glob(os.path.join(glob.escape(d), f"{glob.escape(name)} - *.pdf"))) if d else []
+    if not d:
+        print(f"{w}: no such job folder")
+        continue
+    letter = letter_path(d, name)
+    found = cv_pdfs(d, name) + ([letter] if os.path.exists(letter) else [])
     if not found:
         print(f"{w}: no PDF yet (run kit/build.py {w})")
     files += found

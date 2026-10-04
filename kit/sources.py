@@ -15,7 +15,7 @@ def get(url, data=None, hops=5):
     req = urllib.request.Request(url, data=data, headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"})
     try:
         return urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "ignore")
-    except urllib.error.HTTPError as e:   # Python < 3.11 doesn't follow 307/308
+    except urllib.error.HTTPError as e:   # urllib follows no 308 before Python 3.11, and no 307 after a POST
         if e.code in (307, 308) and hops and e.headers.get("Location"):
             return get(urllib.parse.urljoin(url, e.headers["Location"]), data, hops - 1)
         raise
@@ -45,9 +45,10 @@ def lever(c):
     host = "api.eu.lever.co" if c.get("eu") else "api.lever.co"
     for j in get_json(f"https://{host}/v0/postings/{c['slug']}?mode=json"):
         lists = "\n".join(f"{x.get('text', '')}\n{text(x.get('content', ''))}" for x in j.get("lists") or [])
-        created = datetime.datetime.utcfromtimestamp(j["createdAt"] / 1000).isoformat() if j.get("createdAt") else ""
+        created = (datetime.datetime.fromtimestamp(j["createdAt"] / 1000, datetime.timezone.utc).isoformat()
+                   if j.get("createdAt") else "")
         yield dict(id=f"lv-{c['slug']}-{j['id']}", title=j["text"], company=c.get("name", c["slug"]),
-                   location=(j.get("categories") or {}).get("location", "") + (" (Remote)" if j.get("workplaceType") == "remote" else ""),
+                   location=((j.get("categories") or {}).get("location") or "") + (" (Remote)" if j.get("workplaceType") == "remote" else ""),
                    date=created, url=j["hostedUrl"], source="lever",
                    description="\n".join([j.get("descriptionPlain", ""), lists, j.get("additionalPlain", "")]).strip())
 
@@ -76,9 +77,10 @@ def smartrecruiters(c):
         d = get_json(f"{base}?limit=100&offset={offset}")
         for j in d.get("content", []):
             loc = j.get("location") or {}
-            detail = lambda jid=j["id"]: "\n".join(
-                f"{s.get('title', '')}\n{text(s.get('text', ''))}"
-                for s in get_json(f"{base}/{jid}")["jobAd"]["sections"].values() if s.get("text"))
+
+            def detail(jid=j["id"]):   # fetched later, only if the job passes the filters
+                return "\n".join(f"{s.get('title', '')}\n{text(s.get('text', ''))}"
+                                 for s in get_json(f"{base}/{jid}")["jobAd"]["sections"].values() if s.get("text"))
             yield dict(id=f"sr-{c['slug']}-{j['id']}", title=j["name"], company=c.get("name") or (j.get("company") or {}).get("name", ""),
                        location=loc.get("fullLocation", "") + (" (Remote)" if loc.get("remote") else ""), date=j.get("releasedDate", ""),
                        url=f"https://jobs.smartrecruiters.com/{c['slug']}/{j['id']}", source="smartrecruiters", description=detail)
@@ -88,8 +90,13 @@ def smartrecruiters(c):
 
 def comeet(c):
     """c['url'] = the company's Comeet page, e.g. https://www.comeet.com/jobs/<slug>/<uid>. Its public token is in the page."""
-    uid = re.search(r"/jobs/[^/]+/([0-9A-F]{2}\.[0-9A-F]{3})", c["url"], re.I).group(1)
-    token = re.search(r'"token"\s*:\s*"([0-9A-F]{20,})"', get(c["url"]), re.I).group(1)
+    uid = re.search(r"/jobs/[^/]+/([0-9A-F]{2}\.[0-9A-F]{3})", c.get("url", ""), re.I)
+    if not uid:
+        raise ValueError(f"not a Comeet jobs page (https://www.comeet.com/jobs/<company>/<XX.XXX>): {c.get('url')!r}")
+    token = re.search(r'"token"\s*:\s*"([0-9A-F]{20,})"', get(c["url"]), re.I)
+    if not token:
+        raise ValueError(f"no Comeet token found in {c['url']}")
+    uid, token = uid.group(1), token.group(1)
     for j in get_json(f"https://www.comeet.co/careers-api/2.0/company/{uid}/positions?token={token}&details=true"):
         loc = j.get("location") or {}
         yield dict(id=f"cm-{uid}-{j['uid']}", title=j["name"], company=c.get("name") or j.get("company_name", ""),
@@ -149,7 +156,7 @@ def guess(name):
             except Exception:
                 continue
             if n:
-                found.append(f'- {{name: "{name}", ats: {ats}, slug: "{slug}"}}   # {n} open jobs')
+                found.append(f'- {{name: {json.dumps(name, ensure_ascii=False)}, ats: {ats}, slug: "{slug}"}}   # {n} open jobs')
                 break
     return found or [f"# {name}: not found by name. Find the careers page and run: python3 kit/sources.py detect <url>"]
 

@@ -7,7 +7,7 @@ or log.md has a reply / interview / assessment / rejected / offer event for the 
 """
 import argparse, collections, datetime, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import workspace, read_tracker
+from common import workspace, read_tracker, read_text, cells
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--workspace")
@@ -24,18 +24,25 @@ def day(s):
 rows = [r for r in read_tracker(ws) if r.get("#", "").isdigit()]
 log = []
 log_path = os.path.join(ws, "log.md")
-if os.path.exists(log_path):
-    for l in open(log_path, encoding="utf-8"):
-        c = [x.strip() for x in l.strip().strip("|").split("|")]
-        if l.startswith("|") and len(c) >= 4 and day(c[0]):
-            log.append(dict(date=day(c[0]), job=c[1], company=c[2], event=c[3], details=c[4] if len(c) > 4 else ""))
+for line in read_text(log_path).split("\n") if os.path.exists(log_path) else []:
+    c = cells(line)
+    if line.startswith("|") and len(c) >= 4 and day(c[0]):
+        log.append(dict(date=day(c[0]), job=c[1], company=c[2], event=c[3], details=c[4] if len(c) > 4 else ""))
 interviewed = {e["job"] for e in log if e["event"] in ("interview", "offer")}
 answered = {e["job"] for e in log if e["event"] in ("reply", "interview", "assessment", "rejected", "offer")}
-status = lambda r: (r.get("Status", "").split() or [""])[0].lower()
+
+
+def status(r):
+    return (r.get("Status", "").split() or [""])[0].lower()
+
+
+def pct(x, y):
+    return f"{100 * x // y}%" if y else "-"
+
+
 sent = [r for r in rows if day(r.get("Submitted"))]
 responded = [r for r in sent if r.get("Response") or status(r) in ("interview", "rejected", "offer") or r["#"] in answered]
 interviews = [r for r in sent if status(r) in ("interview", "offer") or r["#"] in interviewed]
-pct = lambda x, y: f"{100 * x // y}%" if y else "-"
 
 print(f"# Job search, {today}\n")
 print("Pipeline: " + ("(no jobs yet)" if not rows else "") + ", ".join(f"{k or '(none)'} {v}" for k, v in collections.Counter(map(status, rows)).most_common()))

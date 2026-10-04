@@ -10,7 +10,7 @@ adds the tracker row, logs "added", and prints the folder path.
 """
 import argparse, datetime, json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import workspace, job_dirs, add_tracker_row, read_tracker, safe, append_row
+from common import workspace, job_dirs, add_tracker_row, read_tracker, safe, append_row, load_json, read_text, write_text
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--batch"); ap.add_argument("--id")
@@ -27,21 +27,25 @@ if a.batch and a.id:
     jd_file = os.path.join(ws, "batches", a.batch, "jd", f"{a.id}.txt")
     if not os.path.exists(jd_file):
         sys.exit(f"No description at {jd_file}." + (f" Run: python3 kit/fetch_jd.py {a.batch} {a.id}" if a.id.isdigit() else ""))
-    jd = open(jd_file, encoding="utf-8").read()
-    field = lambda k: (re.search(rf"^{k}: (.*)$", jd, re.M) or [None, ""])[1].strip()
+    jd = read_text(jd_file)
+
+    def field(k):
+        m = re.search(rf"^{k}: (.*)$", jd, re.M)
+        return m.group(1).strip() if m else ""
     jobs_file = os.path.join(ws, "batches", a.batch, "jobs_all.json")
-    job = json.load(open(jobs_file, encoding="utf-8")).get(a.id, {}) if os.path.exists(jobs_file) else {}
+    job = load_json(jobs_file).get(a.id, {})
     company, role = a.company or job.get("company") or field("COMPANY"), a.role or job.get("title") or field("TITLE")
     link = job.get("url") or field("URL")
     source = job.get("source") or field("SOURCE") or a.source
     posted, applicants = field("POSTED")[:10], field("APPLICANTS")
 elif a.company and a.role:
     company, role, link, source = a.company, a.role, a.link, a.source
-    jd = sys.stdin.read() if a.jd == "-" else (open(a.jd, encoding="utf-8").read() if a.jd else "")
+    jd = sys.stdin.read() if a.jd == "-" else (read_text(a.jd) if a.jd else "")
 else:
     sys.exit("Give --batch and --id, or --company and --role.")
 
-if link and any(link in r.get("Link", "") for r in read_tracker(ws)):
+tracked = {u.rstrip("/") for r in read_tracker(ws) for u in re.findall(r"https?://[^\s<>()\[\]]+", r.get("Link", ""))}
+if link and link.strip().rstrip("/") in tracked:
     sys.exit(f"Already in the tracker: {link}")
 if len(jd.split("---", 1)[-1].strip()) < 200:
     print("warning: the job description is empty or very short. Get the full text before tailoring.")
@@ -49,10 +53,11 @@ if len(jd.split("---", 1)[-1].strip()) < 200:
 n = max(job_dirs(ws), default=0) + 1
 d = os.path.join(ws, "jobs", f"{n:03d} - {safe(company)} - {safe(role)}")
 os.makedirs(d)
-open(os.path.join(d, "job-description.txt"), "w", encoding="utf-8").write(jd)
-open(os.path.join(d, "spec.yaml"), "w", encoding="utf-8").write(
+write_text(os.path.join(d, "job-description.txt"), jd)
+write_text(os.path.join(d, "spec.yaml"),
     f"# Tailored CV for #{n}. Fill per workflows/tailor.md, then: python3 kit/build.py {n}\n"
-    f"company: {json.dumps(company, ensure_ascii=False)}\nrole: {json.dumps(role, ensure_ascii=False)}\nlink: {link}\n"
+    f"company: {json.dumps(company, ensure_ascii=False)}\nrole: {json.dumps(role, ensure_ascii=False)}\n"
+    f"link: {json.dumps(link, ensure_ascii=False)}\n"
     "title:            # close to the posting's title, never a level you don't hold\n"
     "summary: >\n  \n"
     "experience:       # role keys from profile.yaml; order doesn't matter, it renders reverse-chronologically\n"

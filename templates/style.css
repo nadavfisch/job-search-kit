@@ -4,7 +4,7 @@
    Your CV's look. Loaded after the kit's template, so whatever is here wins.
    build.py refuses the common ways a stylesheet breaks ATS reading or the page fit: columns, grid, flex,
    floats, positioning, transforms, images, gradients, generated text, a font size on html/body/.page,
-   and letter-spacing above .1em.
+   and letter-spacing above .08em or not in em (from .1em, ATS text extraction reads each letter as a word).
    Fixed (not styleable): one column, the section order, the text itself.
    Set in profile.yaml instead: section names (`labels`) and the separator between contact items and
    role-line parts (`separator`, default "|"). */

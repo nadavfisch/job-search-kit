@@ -9,7 +9,7 @@ looks for. A human pace keeps the account safe. The user can change the limits (
 """
 import argparse, datetime, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import workspace
+from common import workspace, read_text, cells
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--per-day", type=int, default=15); ap.add_argument("--per-hour", type=int, default=5)
@@ -19,9 +19,9 @@ a = ap.parse_args()
 path = os.path.join(workspace(a.workspace), "log.md")
 now = datetime.datetime.now()
 times = []
-for l in open(path, encoding="utf-8") if os.path.exists(path) else []:
-    c = [x.strip() for x in l.strip().strip("|").split("|")]
-    m = re.match(r"(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?", c[0]) if l.startswith("|") and len(c) >= 5 else None
+for line in read_text(path).split("\n") if os.path.exists(path) else []:
+    c = cells(line)
+    m = re.match(r"(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?", c[0]) if line.startswith("|") and len(c) >= 5 else None
     if m and c[3] == "submitted" and re.search(r"linkedin|easy apply", c[4], re.I):
         times.append(datetime.datetime.fromisoformat(f"{m.group(1)} {m.group(2) or '00:00'}"))
 today = [t for t in times if t.date() == now.date()]
