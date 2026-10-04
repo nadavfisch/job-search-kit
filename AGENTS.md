@@ -128,3 +128,7 @@ link, every form answer) and the user submits by hand.
 LinkedIn's User Agreement forbids automated access. `kit/search.py` uses public guest pages and the browser
 works in the user's own session; keep volumes low and human-paced: `kit/pace.py` before every LinkedIn submission,
 few profile views. The user accepts that risk; tell them once, during setup.
+
+## Changing the kit itself
+Only when the user asks to change the kit, not their search. After changing `kit/`, these pass (a fixed bug gets a
+test): `python3 -m unittest discover -s tests`, and `ruff check && ruff format --check` if ruff is installed.

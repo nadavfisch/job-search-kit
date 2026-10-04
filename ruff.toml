@@ -1,5 +1,6 @@
 line-length = 120
 target-version = "py39"
+include = ["kit/*.py", "tests/*.py"]
 
 [lint]
 select = ["E", "W", "F", "B"]
