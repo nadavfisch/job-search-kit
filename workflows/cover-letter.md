@@ -4,7 +4,8 @@ When: a form asks for one (a file or a text box), or the user asks. Not by defau
 Same rule as the CV: every claim comes from profile.yaml or something the user told you and you wrote down.
 
 ## Write `cover-letter.md` in the job folder
-250-350 words, in the posting's language, plain paragraphs separated by blank lines:
+250-350 words, in the posting's language, plain paragraphs separated by blank lines, each paragraph on one line
+(a line break inside a paragraph is kept, as in the sign-off: "Best," then the name on the next line):
 1. **Opening (2-3 sentences)**: the role, and the one thing this job needs most that the user has done.
    Something specific to this company if there's something real (their product, a recent launch from the
    description or their site). No "I am writing to apply for...", no "I am thrilled".

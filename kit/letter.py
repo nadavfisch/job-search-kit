@@ -2,7 +2,8 @@
 
   python3 kit/letter.py <n> [--check] [--force]
 
-cover-letter.md is plain paragraphs separated by blank lines (the greeting and sign-off included).
+cover-letter.md is plain paragraphs separated by blank lines (the greeting and sign-off included), each on one
+line. A line break inside a paragraph stays a line break, as in a sign-off ("Best," then the name).
 The same truth checks as the CV: every number must be in profile.yaml, and none of the user's banned
 patterns may appear. A submitted job's letter isn't re-rendered without --force.
 """
@@ -50,7 +51,7 @@ if a.n in frozen(ws) and not a.force:
 
 c = p.get("contact") or {}
 contact = " | ".join(esc(x) for x in (c.get("phone"), c.get("email"), c.get("location")) if x)
-paras = "".join(f"<p>{esc(x.strip())}</p>" for x in re.split(r"\n\s*\n", body) if x.strip())
+paras = "".join(f"<p>{esc(x.strip())}</p>".replace("\n", "<br>") for x in re.split(r"\n\s*\n", body) if x.strip())
 d_attr = ' dir="rtl"' if p.get("rtl") else ""
 page = (
     f'<!doctype html><html{d_attr}><head><meta charset="utf-8">'
