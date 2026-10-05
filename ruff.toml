@@ -1,0 +1,9 @@
+line-length = 120
+target-version = "py39"
+include = ["kit/*.py", "tests/*.py"]
+
+[lint]
+select = ["E", "W", "F", "B"]
+# E402: the scripts put kit/ on sys.path before importing their neighbors, so they run from any folder.
+# E501: the formatter wraps code at 120; a long string stays whole.
+ignore = ["E402", "E501"]

@@ -7,7 +7,13 @@ A spec is what build.py produces from profile.yaml + a job's spec.yaml:
    "skills": [(label, text), ...], "education": bool}
 Layout shrinks step by step (font, spacing) until the CV fits in profile["max_pages"] (default 1).
 """
-import html, os, shutil, subprocess, sys, tempfile
+
+import html
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
 import pypdf
 
 CHROME_CANDIDATES = [
@@ -17,8 +23,12 @@ CHROME_CANDIDATES = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
 ]
+if os.environ.get("LOCALAPPDATA"):  # Chrome installed for one Windows user only
+    CHROME_CANDIDATES.append(os.path.join(os.environ["LOCALAPPDATA"], r"Google\Chrome\Application\chrome.exe"))
 CHROME_NAMES = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "chrome"]
+NO_CHROME = "No Chrome, Chromium or Edge found. Install Google Chrome, or set CHROME_PATH to the browser binary."
 
 
 def find_chrome():
@@ -27,15 +37,13 @@ def find_chrome():
     for p in CHROME_CANDIDATES:
         if os.path.exists(p):
             return p
-    for n in CHROME_NAMES:
-        if shutil.which(n):
-            return shutil.which(n)
-    return None
+    return next(filter(None, map(shutil.which, CHROME_NAMES)), None)
 
 
 LABELS = {"experience": "Work Experience", "education": "Education", "skills": "Skills", "languages": "Languages"}
 
-# Letter-spacing stays <= .1em so ATS text extraction reads headings as whole words.
+# Letter-spacing stays at .08em or less: from .1em, PDF text extraction (pdftotext, pdfminer, and the ATS
+# parsers built on them) reads a heading as one word per letter ("W O R K  E X P E R I E N C E").
 # The look is set by the variables in :root. A user's my-search/style.css (see templates/style.css) can
 # override them, and is loaded after this as its own stylesheet.
 CSS = """
@@ -56,7 +64,7 @@ h1 { font-family: var(--font-head); font-weight: 400; text-align: var(--align-he
 .contact .sep { margin: 0 2px; }
 .contact .item { white-space: nowrap; }   /* a long contact line wraps between items, never inside one */
 .summary { margin: 0 0 @SECT@pt; }
-h2 { font-family: var(--font-head); font-weight: 400; letter-spacing: .1em; font-size: 1.39em; color: var(--section); margin: 0 0 5pt; text-transform: var(--case-head); }
+h2 { font-family: var(--font-head); font-weight: 400; letter-spacing: .08em; font-size: 1.39em; color: var(--section); margin: 0 0 5pt; text-transform: var(--case-head); }
 .job { margin-bottom: @JOB@pt; }
 .jh { font-weight: 700; color: var(--strong); margin-bottom: 2pt; }
 ul { margin: 0; padding-inline-start: 16pt; }
@@ -68,12 +76,17 @@ li { margin: 0 0 1pt; }
 
 
 def esc(t):
-    return html.escape(str(t), quote=False)
+    return html.escape(str(t))  # quotes too: some of it goes into href="..."
 
 
 def build_html(profile, spec, fs, lh, top, sect, job):
-    css = (CSS.replace("@FS@", str(fs)).replace("@LH@", str(lh)).replace("@TOP@", str(top))
-           .replace("@SECT@", str(sect)).replace("@JOB@", str(job)))
+    css = (
+        CSS.replace("@FS@", str(fs))
+        .replace("@LH@", str(lh))
+        .replace("@TOP@", str(top))
+        .replace("@SECT@", str(sect))
+        .replace("@JOB@", str(job))
+    )
     labels = {**LABELS, **(profile.get("labels") or {})}
     c = profile.get("contact") or {}
     items = []
@@ -83,12 +96,14 @@ def build_html(profile, spec, fs, lh, top, sect, job):
         items.append(f'<a href="mailto:{esc(c["email"])}">{esc(c["email"])}</a>')
     if c.get("location"):
         items.append(esc(c["location"]))
-    items += [f'<a href="{esc(l["url"])}">{esc(l["label"])}</a>' for l in profile.get("links") or []]
+    items += [f'<a href="{esc(link["url"])}">{esc(link["label"])}</a>' for link in profile.get("links") or []]
     roles = {r["key"]: r for r in profile["experience"]}
-    sep = f'<span class="sep"> {esc(profile.get("separator") or "|")} </span>'   # between contact items and header parts
+    sep = f'<span class="sep"> {esc(profile.get("separator") or "|")} </span>'  # between contact items and header parts
 
-    parts = [f'<div class="page"><h1>{esc(profile["name"])}</h1><div class="role">{esc(spec["title"])}</div>',
-             f'<div class="contact">{sep.join(f"<span class=item>{x}</span>" for x in items)}</div>']
+    parts = [
+        f'<div class="page"><h1>{esc(profile["name"])}</h1><div class="role">{esc(spec["title"])}</div>',
+        f'<div class="contact">{sep.join(f"<span class=item>{x}</span>" for x in items)}</div>',
+    ]
     if spec.get("summary"):
         parts.append(f'<div class="summary">{esc(spec["summary"])}</div>')
     parts.append(f'<div class="sect"><h2>{esc(labels["experience"])}</h2>')
@@ -102,30 +117,46 @@ def build_html(profile, spec, fs, lh, top, sect, job):
         lis = "".join(f"<li>{esc(e)}</li>" for e in profile["education"])
         parts.append(f'<div class="sect"><h2>{esc(labels["education"])}</h2><ul class="edu">{lis}</ul></div>')
     if spec.get("skills"):
-        lis = "".join(f"<li><b>{esc(l)}:</b> {esc(t)}</li>" for l, t in spec["skills"])
+        lis = "".join(f"<li><b>{esc(label)}:</b> {esc(t)}</li>" for label, t in spec["skills"])
         parts.append(f'<div class="sect"><h2>{esc(labels["skills"])}</h2><ul class="skills">{lis}</ul></div>')
     if profile.get("languages"):
         parts.append(f'<div><h2>{esc(labels["languages"])}</h2><p class="plain">{esc(profile["languages"])}</p></div>')
     parts.append("</div>")
     d = ' dir="rtl"' if profile.get("rtl") else ""
-    head = (f'<!doctype html><html{d}><head><meta charset="utf-8">'
-            '<link href="https://fonts.googleapis.com/css2?family=Questrial&family=Roboto:wght@400;700&display=block" rel="stylesheet">'
-            f'<style>{css}</style><style>{profile.get("_css", "")}</style>'
-            f'<title>{esc(profile["name"])} - CV</title></head><body>')
+    head = (
+        f'<!doctype html><html{d}><head><meta charset="utf-8">'
+        '<link href="https://fonts.googleapis.com/css2?family=Questrial&family=Roboto:wght@400;700&display=block" rel="stylesheet">'
+        f"<style>{css}</style><style>{profile.get('_css', '')}</style>"
+        f"<title>{esc(profile['name'])} - CV</title></head><body>"
+    )
     return head + "".join(parts) + "</body></html>"
 
 
 def to_pdf(html_text, out):
     chrome = find_chrome()
     if not chrome:
-        sys.exit("No Chrome, Chromium or Edge found. Install Google Chrome, or set CHROME_PATH to the browser binary.")
+        sys.exit(NO_CHROME)
     with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as f:
         f.write(html_text)
         path = f.name
     try:
-        subprocess.run([chrome, "--headless=new", "--disable-gpu", "--no-pdf-header-footer",
-                        "--virtual-time-budget=8000", f"--print-to-pdf={out}", path],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, timeout=120)
+        subprocess.run(
+            [
+                chrome,
+                "--headless=new",
+                "--disable-gpu",
+                "--no-pdf-header-footer",
+                "--virtual-time-budget=8000",
+                f"--print-to-pdf={out}",
+                path,
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
+            timeout=120,
+        )
+    except (subprocess.SubprocessError, OSError) as e:
+        sys.exit(f"Chrome couldn't render the PDF: {e}")
     finally:
         os.unlink(path)
     return len(pypdf.PdfReader(out).pages)
@@ -164,6 +195,10 @@ def render(profile, spec, out):
     return {"step": best, "pages": n, "fill": page_fill(out)}
 
 
-if __name__ == "__main__" and "--check" in sys.argv:
+if __name__ == "__main__":
+    if "--check" not in sys.argv:
+        sys.exit(__doc__)
     c = find_chrome()
-    sys.exit(print(f"OK: {c}") if c else "No Chrome, Chromium or Edge found. Install Google Chrome, or set CHROME_PATH.")
+    if not c:
+        sys.exit(NO_CHROME)
+    print(f"OK: {c}")

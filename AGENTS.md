@@ -37,6 +37,7 @@ my-search/                  the user's data (git-ignored, never commit or upload
   tracker.md                one row per job: status, source, dates, link
   log.md                    every event, dated (append only)
   contacts.md               everyone contacted, across all jobs
+  interview-bank.md         locked answers and stories, shared across interviews (workflows/interview.md)
   style.css                 optional: the CV's look (colors, fonts), see SETUP.md 6b
   source-cv/                the CV files they gave you
   master/                   the general CV (kit/build.py master)
@@ -46,8 +47,8 @@ my-search/                  the user's data (git-ignored, never commit or upload
     spec.yaml               which title, summary, bullets and skills this CV uses
     <Name> - <Title>.pdf    the tailored CV
     review.md               the pre-submit review
-    cover-letter.md         when a form asks for one (+ its PDF)
-    outreach.md             people to contact and draft messages
+    cover-letter.md         when a form asks for one (+ <Name> - Cover Letter.pdf and .txt)
+    outreach.md             people to contact and draft messages (+ a .txt per message)
     interview-prep.md       created when an interview is scheduled
 kit/                        the scripts (Python 3)
 workflows/                  how to do each task
@@ -127,3 +128,7 @@ link, every form answer) and the user submits by hand.
 LinkedIn's User Agreement forbids automated access. `kit/search.py` uses public guest pages and the browser
 works in the user's own session; keep volumes low and human-paced: `kit/pace.py` before every LinkedIn submission,
 few profile views. The user accepts that risk; tell them once, during setup.
+
+## Changing the kit itself
+Only when the user asks to change the kit, not their search. After changing `kit/`, these pass (a fixed bug gets a
+test): `python3 -m unittest discover -s tests`, and `ruff check && ruff format --check` if ruff is installed.

@@ -1,5 +1,7 @@
 # Job Search Kit
 
+[![tests](https://github.com/nadavfisch/job-search-kit/actions/workflows/tests.yml/badge.svg)](https://github.com/nadavfisch/job-search-kit/actions/workflows/tests.yml)
+
 ![Job Search Kit](docs/social-preview.png)
 
 A job search run by your AI coding agent ([Claude Code](https://claude.com/claude-code) or [Codex](https://openai.com/codex)).
@@ -140,6 +142,17 @@ One prompt can't be turned off in settings: "allow <site> for this session". Pic
 **Codex or Claude Code?** Both read the same instructions (`AGENTS.md`). The differences: Claude Code has the
 `/job-...` commands and runs the review in a separate subagent; in Codex, the browser extension works in the Codex
 app, not the CLI.
+
+## Development
+
+Plain Python scripts in `kit/`, two dependencies (`pypdf`, `pyyaml`), Chrome for the PDFs. The tests cover the truth
+checks, the workspace scripts, every job board's parser (offline, with faked API answers), and the PDFs end to end
+through Chrome, read back the way an ATS reads them (skipped when there's no Chrome):
+```
+python3 -m unittest discover -s tests
+ruff check && ruff format --check        # pip install ruff
+```
+CI runs both on Linux (Python 3.9 and 3.13) and macOS.
 
 ## License
 
