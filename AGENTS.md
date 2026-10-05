@@ -5,7 +5,9 @@ helping submit it, and following up. This file is the map. Each task has its own
 before doing that task.
 
 ## First run
-If `my-search/profile.yaml` doesn't exist, the user hasn't been set up yet. Follow `SETUP.md` before anything else.
+If `my-search/profile.yaml` doesn't exist, ask first whether the user already keeps their search data somewhere else,
+e.g. a private git repo for cloud sessions. If so, clone it into `my-search/` (or link it there) and carry on;
+every change to it is committed and pushed back to that repo, never to this one. Otherwise follow `SETUP.md`.
 
 ## Talk to the user in their language
 Write every message to the user in the language they write to you. CVs, form answers and messages to
