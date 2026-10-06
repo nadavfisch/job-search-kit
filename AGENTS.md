@@ -134,3 +134,4 @@ few profile views. The user accepts that risk; tell them once, during setup.
 ## Changing the kit itself
 Only when the user asks to change the kit, not their search. After changing `kit/`, these pass (a fixed bug gets a
 test): `python3 -m unittest discover -s tests`, and `ruff check && ruff format --check` if ruff is installed.
+Add a line to `CHANGELOG.md` under "Unreleased". The rest: `CONTRIBUTING.md`.

@@ -9,6 +9,8 @@ python3 kit/fetch_jd.py <date> new    # LinkedIn descriptions (other sources alr
 ```
 Sources (all optional, set in `my-search/search.yaml`):
 - **LinkedIn** public search. If nothing comes back, LinkedIn is rate-limiting: wait, don't retry in a loop.
+  If it says LinkedIn may have changed its pages, tell the user the kit needs an update (`git pull`); the other
+  sources still work meanwhile.
 - **Target companies**: their own job boards (Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Comeet),
   filtered by title keywords and locations. To add a company:
   `python3 kit/sources.py guess "<name>"`, or find its careers page and `python3 kit/sources.py detect <url>`.

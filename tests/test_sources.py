@@ -8,6 +8,7 @@ import os
 import runpy
 import sys
 import unittest
+import urllib.parse
 from unittest import mock
 
 from helpers import KIT, KitTest, read, write
@@ -162,6 +163,96 @@ class Detect(unittest.TestCase):
             self.assertIn("# couldn't open", sources.detect("https://acme.example/careers"))
 
 
+# LinkedIn's public pages, cut down to the markup the kit reads (the real ones: tests/test_live.py).
+LI_CARD = """
+      <li>
+      <div class="base-card base-search-card job-search-card" data-entity-urn="urn:li:jobPosting:{id}">
+        <a class="base-card__full-link" href="https://www.linkedin.com/jobs/view/ops-{id}"><span class="sr-only">{title}</span></a>
+        <div class="base-search-card__info">
+          <h3 class="base-search-card__title">
+        {title}
+          </h3>
+            <h4 class="base-search-card__subtitle">
+          {company}
+            </h4>
+            <div class="base-search-card__metadata">
+          <span class="job-search-card__location">
+            Tel Aviv District, Israel
+          </span>
+          <time class="job-search-card__listdate" datetime="2026-10-04">
+      1 day ago
+          </time>
+            </div>
+        </div>
+      </div>
+      </li>"""
+LI_LINKED_COMPANY = '<a class="hidden-nested-link" href="https://il.linkedin.com/company/acme">\n  {}\n</a>'
+LI_NO_RESULTS = "<!DOCTYPE html>\n\n<!---->  "
+LI_POSTING = """<!DOCTYPE html><html><body>
+        <span class="num-applicants__caption topcard__flavor--metadata topcard__flavor--bullet">
+          Over 200 applicants
+        </span>
+      <div class="description__text description__text--rich">
+    <section class="show-more-less-html" data-max-lines="5">
+        <div class="show-more-less-html__markup show-more-less-html__markup--clamp-after-5
+            relative overflow-hidden">
+          <p>Own &amp; automate ops.</p><ul><li>Billing</li><li>Support</li></ul>
+        </div>
+    </section>
+      </div>
+      <ul class="description__job-criteria-list">
+        <li class="description__job-criteria-item">
+          <h3 class="description__job-criteria-subheader">
+            Seniority level
+          </h3>
+          <span class="description__job-criteria-text description__job-criteria-text--criteria">
+            Mid-Senior level
+          </span>
+        </li>
+        <li class="description__job-criteria-item">
+          <h3 class="description__job-criteria-subheader">
+            Industries
+          </h3>
+          <span class="description__job-criteria-text description__job-criteria-text--criteria">
+            Software &amp; Services
+          </span>
+        </li>
+      </ul>
+</body></html>"""
+
+
+def li_page(*cards):
+    """A page of LinkedIn search results: (id, title, company) per card."""
+    return "<!DOCTYPE html>" + "".join(LI_CARD.format(id=i, title=t, company=c) for i, t, c in cards)
+
+
+class LinkedIn(unittest.TestCase):
+    def test_reads_the_search_cards(self):
+        page = li_page(
+            ("101", "Ops &amp; Automation Lead", LI_LINKED_COMPANY.format("Acme")), ("102", "BizOps", "Beta")
+        )
+        first, second = sources.linkedin_cards(page)
+        self.assertEqual(
+            first,
+            dict(id="101", title="Ops & Automation Lead", company="Acme", location="Tel Aviv District, Israel",
+                 date="2026-10-04", url="https://www.linkedin.com/jobs/view/101", source="linkedin", description=None),
+        )  # fmt: skip
+        self.assertEqual(second["company"], "Beta")  # a company without a link to its page
+
+    def test_reads_a_job_page(self):
+        self.assertEqual(
+            sources.linkedin_posting(LI_POSTING),
+            dict(description="Own & automate ops.\n- Billing\n- Support", applicants="Over 200 applicants",
+                 criteria="Seniority level: Mid-Senior level; Industries: Software & Services"),
+        )  # fmt: skip
+
+    def test_an_empty_answer_is_not_an_unreadable_page(self):
+        self.assertTrue(sources.linkedin_empty(""))
+        self.assertTrue(sources.linkedin_empty(LI_NO_RESULTS))
+        self.assertFalse(sources.linkedin_empty("<!DOCTYPE html><div class='jobs-v2'>...</div>"))
+        self.assertEqual(sources.linkedin_cards(LI_NO_RESULTS), [])
+
+
 class HtmlToText(unittest.TestCase):
     def test_keeps_paragraphs_and_list_items(self):
         html = "<h2>About</h2><p>We&#39;re <b>hiring</b>.</p><ul><li>Own ops</li><li>Automate</li></ul><br/>Thanks"
@@ -184,15 +275,20 @@ remote:
 """
 
 
+def run_here(script, *args):
+    """Run kit/<script> in this process, so the faked network applies. Returns what it printed."""
+    out = io.StringIO()
+    with mock.patch.object(sys, "argv", [script, *args]), mock.patch("time.sleep"), contextlib.redirect_stdout(out):
+        runpy.run_path(os.path.join(KIT, script), run_name="__main__")
+    return out.getvalue()
+
+
 @mock.patch.object(sources, "get_json", fake_get_json)
 @mock.patch.object(sources, "get", fake_get)
 class Search(KitTest):
-    def search(self, ws, batch):
-        out = io.StringIO()
-        argv = ["search.py", batch, "--only", "companies,remote", "--workspace", ws]
-        with mock.patch.object(sys, "argv", argv), mock.patch("time.sleep"), contextlib.redirect_stdout(out):
-            runpy.run_path(os.path.join(KIT, "search.py"), run_name="__main__")
-        return out.getvalue(), json.loads(read(os.path.join(ws, "batches", batch, "jobs_all.json")))
+    def search(self, ws, batch, only="companies,remote"):
+        out = run_here("search.py", batch, "--only", only, "--workspace", ws)
+        return out, json.loads(read(os.path.join(ws, "batches", batch, "jobs_all.json")))
 
     def test_filters_merges_and_marks_new_jobs(self):
         ws = self.workspace(demo=False)
@@ -214,6 +310,84 @@ class Search(KitTest):
 
         _, later = self.search(ws, "b2")
         self.assertFalse(any(j["new"] for j in later.values()))
+
+    def linkedin(self, answer):
+        """search.py --only linkedin, with answer(start) as LinkedIn's page for each offset. -> (printed, jobs, starts)"""
+        ws = self.ws = self.workspace(demo=False)
+        write(os.path.join(ws, "search.yaml"), "days: 7\nlinkedin: {queries: [operations]}\n")
+        starts = []
+
+        def get(url, data=None, hops=5):
+            starts.append(int(urllib.parse.parse_qs(urllib.parse.urlparse(url).query)["start"][0]))
+            return answer(starts[-1])
+
+        with mock.patch.object(sources, "get", get):
+            out, jobs = self.search(ws, "b1", "linkedin")
+        return out, jobs, starts
+
+    def test_linkedin_pages_through_the_results_whatever_the_page_size(self):
+        def ten_a_page_for_35_jobs(start):
+            return li_page(*[(str(1000 + i), "Ops Lead", "Acme") for i in range(start, min(start + 10, 35))])
+
+        out, jobs, starts = self.linkedin(ten_a_page_for_35_jobs)
+        self.assertEqual(starts, [0, 10, 20, 30])  # the 4th page is short: the last one
+        self.assertEqual(len(jobs), 35)
+        self.assertEqual(jobs["1000"]["q"], ["operations"])
+        self.assertIn("Next: python3 kit/fetch_jd.py b1 new", out)
+        self.assertEqual(os.listdir(os.path.join(self.ws, "batches", "b1", "jd")), [])  # those come from fetch_jd.py
+
+        _, jobs, starts = self.linkedin(lambda start: li_page(*[(str(start + i), "Ops", "Acme") for i in range(25)]))
+        self.assertEqual((starts, len(jobs)), ([0, 25, 50], 75))  # stops at LINKEDIN_PER_QUERY
+
+        _, jobs, starts = self.linkedin(lambda start: li_page(("7", "Ops", "Acme"), ("8", "Ops", "Acme")))
+        self.assertEqual((starts, len(jobs)), ([0, 2], 2))  # the same page again: stop
+
+    def test_linkedin_says_when_it_cant_read_the_pages(self):
+        out, jobs, _ = self.linkedin(lambda start: "<!DOCTYPE html><main class='jobs-v2'>a new design</main>")
+        self.assertEqual(jobs, {})
+        self.assertIn("LinkedIn sent pages the kit couldn't read", out)
+        self.assertIn(sources.LINKEDIN_CHANGED, out)
+
+        out, _, _ = self.linkedin(lambda start: li_page(("7", "", "")))
+        self.assertIn("1 jobs came back without a title or company", out)
+
+    def test_linkedin_blocked_or_no_results_is_not_a_page_change(self):
+        def blocked(start):
+            raise OSError("HTTP Error 429: Too Many Requests")
+
+        for answer in (blocked, lambda start: LI_NO_RESULTS):
+            out, _, starts = self.linkedin(answer)
+            self.assertEqual(starts, [0])
+            self.assertIn("LinkedIn: nothing came back", out)
+            self.assertNotIn(sources.LINKEDIN_CHANGED, out)
+
+
+@mock.patch.object(sources, "get", lambda url, data=None, hops=5: LI_POSTING if url.endswith("/101") else LI_NO_RESULTS)
+class FetchJD(KitTest):
+    def fetch(self, *ids):
+        ws = self.workspace(demo=False)
+        jobs = {i: dict(id=i, title="Ops Lead", company="Acme", location="Tel Aviv", date="2026-10-04", new=True)
+                for i in ids}  # fmt: skip
+        write(os.path.join(ws, "batches", "b1", "jobs_all.json"), json.dumps(jobs))
+        out = run_here("fetch_jd.py", "b1", "new", "--workspace", ws)
+        return out, {i: read(os.path.join(ws, "batches", "b1", "jd", f"{i}.txt")) for i in ids}
+
+    def test_saves_the_description_under_a_header(self):
+        out, jd = self.fetch("101")
+        self.assertEqual(
+            jd["101"],
+            "ID: 101\nTITLE: Ops Lead\nCOMPANY: Acme\nLOCATION: Tel Aviv\nPOSTED: 2026-10-04\n"
+            "URL: https://www.linkedin.com/jobs/view/101\nSOURCE: linkedin\nAPPLICANTS: Over 200 applicants\n"
+            "CRITERIA: Seniority level: Mid-Senior level; Industries: Software & Services\n---\n"
+            "Own & automate ops.\n- Billing\n- Support",
+        )
+        self.assertNotIn("came through", out)
+
+    def test_says_so_when_no_description_comes_through(self):
+        out, jd = self.fetch("201", "202")
+        self.assertTrue(jd["201"].endswith("---\n"))
+        self.assertIn("EMPTY", out)
+        self.assertIn("None of the 2 descriptions came through", out)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 # Job Search Kit
 
 [![tests](https://github.com/nadavfisch/job-search-kit/actions/workflows/tests.yml/badge.svg)](https://github.com/nadavfisch/job-search-kit/actions/workflows/tests.yml)
+[![LinkedIn check](https://github.com/nadavfisch/job-search-kit/actions/workflows/live.yml/badge.svg)](https://github.com/nadavfisch/job-search-kit/actions/workflows/live.yml)
 
 ![Job Search Kit](docs/social-preview.png)
 
@@ -44,6 +45,9 @@ Clone https://github.com/nadavfisch/job-search-kit here and work from that folde
 Open your agent in the folder where you want the kit to live (your home folder is fine): it can only reach files inside
 the folder it was opened in. The agent installs everything, asks for your CV, and starts asking questions. After setup,
 always open your agent inside the `job-search-kit` folder, so it picks up where you left off.
+
+To update the kit later: `git pull` in its folder. Your `my-search/` folder stays as it is, and
+[CHANGELOG.md](CHANGELOG.md) says what changed.
 
 Or by hand:
 ```
@@ -93,7 +97,7 @@ during the conversation, like any other chat.
 | Source | How | Notes |
 |---|---|---|
 | Target companies | their public job-board APIs (Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Comeet) | official and stable; `kit/sources.py guess "<company>"` finds a company's board |
-| LinkedIn | public job search pages | see below |
+| LinkedIn | public job search pages | not an official API: checked weekly (the badge above), see below |
 | Remote boards | Remotive API | for remote searches |
 | Job-alert emails | your inbox (AllJobs, Drushim, Indeed, LinkedIn...) | needs an email connector, or paste them in |
 | Anything else | `kit/add_lead.py` or paste a link | a friend's tip, a site you browse |
@@ -146,13 +150,15 @@ app, not the CLI.
 ## Development
 
 Plain Python scripts in `kit/`, two dependencies (`pypdf`, `pyyaml`), Chrome for the PDFs. The tests cover the truth
-checks, the workspace scripts, every job board's parser (offline, with faked API answers), and the PDFs end to end
-through Chrome, read back the way an ATS reads them (skipped when there's no Chrome):
+checks, the workspace scripts, every job board's parser and LinkedIn's (offline, with faked answers), and the PDFs end
+to end through Chrome, read back the way an ATS reads them (skipped when there's no Chrome):
 ```
 python3 -m unittest discover -s tests
 ruff check && ruff format --check        # pip install ruff
 ```
-CI runs both on Linux (Python 3.9 and 3.13) and macOS.
+CI runs both on Linux (Python 3.9 and 3.13) and macOS. LinkedIn's pages aren't an official API and can change any
+day, so a separate check reads the real pages once a week and fails when the kit can't read them
+(`tests/test_live.py`). How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md). What changed: [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

@@ -195,10 +195,14 @@ def render(profile, spec, out):
     return {"step": best, "pages": n, "fill": page_fill(out)}
 
 
-if __name__ == "__main__":
+def main():
     if "--check" not in sys.argv:
         sys.exit(__doc__)
     c = find_chrome()
     if not c:
         sys.exit(NO_CHROME)
     print(f"OK: {c}")
+
+
+if __name__ == "__main__":
+    main()
