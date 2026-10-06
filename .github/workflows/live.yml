@@ -1,0 +1,26 @@
+name: LinkedIn check
+
+# The tests run offline, so they can't notice when LinkedIn changes its public job pages and the search stops
+# reading them. This reads the real pages once a week (three search pages, three job pages) and fails if the kit
+# can't read them. GitHub emails a failed run. When LinkedIn refuses to answer, the test is skipped, not failed.
+
+on:
+  schedule:
+    - cron: "23 5 * * 1" # Mondays, 05:23 UTC
+  workflow_dispatch: # by hand: Actions > LinkedIn check > Run workflow
+
+permissions:
+  contents: read
+
+jobs:
+  linkedin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -p test_live.py -v
+        env:
+          JOBKIT_LIVE: "1"

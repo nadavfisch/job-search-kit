@@ -28,20 +28,29 @@ EVENTS = {
     "closed",
     "note",
 }
-ap = argparse.ArgumentParser()
-ap.add_argument("event")
-ap.add_argument("--job", type=int)
-ap.add_argument("--company", default="")
-ap.add_argument("--details", default="")
-ap.add_argument("--date", default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
-ap.add_argument("--workspace")
-a = ap.parse_args()
-if a.event not in EVENTS:
-    sys.exit(f"Unknown event '{a.event}'. One of: {', '.join(sorted(EVENTS))}")
-ws = workspace(a.workspace)
-path = os.path.join(ws, "log.md")
-if not os.path.exists(path):
-    sys.exit("No log.md: copy templates/log.md into the workspace.")
-company = a.company or next((r.get("Company", "") for r in read_tracker(ws) if a.job and r.get("#") == str(a.job)), "")
-append_row(path, [a.date, a.job or "", company, a.event, a.details])
-print(f"logged: {a.date} {a.event} {company}")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("event")
+    ap.add_argument("--job", type=int)
+    ap.add_argument("--company", default="")
+    ap.add_argument("--details", default="")
+    ap.add_argument("--date", default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    ap.add_argument("--workspace")
+    a = ap.parse_args()
+    if a.event not in EVENTS:
+        sys.exit(f"Unknown event '{a.event}'. One of: {', '.join(sorted(EVENTS))}")
+    ws = workspace(a.workspace)
+    path = os.path.join(ws, "log.md")
+    if not os.path.exists(path):
+        sys.exit("No log.md: copy templates/log.md into the workspace.")
+    company = a.company or next(
+        (r.get("Company", "") for r in read_tracker(ws) if a.job and r.get("#") == str(a.job)), ""
+    )
+    append_row(path, [a.date, a.job or "", company, a.event, a.details])
+    print(f"logged: {a.date} {a.event} {company}")
+
+
+if __name__ == "__main__":
+    main()

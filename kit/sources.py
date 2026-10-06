@@ -1,4 +1,4 @@
-"""Job sources besides LinkedIn: company career pages (public job-board APIs) and remote job boards.
+"""Job sources: company career pages (public job-board APIs), remote job boards, and LinkedIn's public pages.
 
   python3 kit/sources.py guess <company name>          # try the name on each job board -> a line for search.yaml
   python3 kit/sources.py detect <careers page url>    # find the job board linked from a careers page
@@ -179,6 +179,71 @@ def remotive(query):
         )
 
 
+# --- LinkedIn: its public (logged-out) job pages. Not an API: LinkedIn can change them without notice, so
+# tests/test_live.py reads the real pages once a week (.github/workflows/live.yml) and fails when these stop working.
+LINKEDIN_CHANGED = "LinkedIn may have changed its pages: the kit needs an update (git pull, or report it)"
+LINKEDIN_PER_QUERY = 75  # how deep into each query's results to read, page by page (a page had 25 jobs, now 10)
+
+
+def linkedin_search_url(query, location="", geo_id=None, days=14, start=0):
+    params = {"keywords": query, "location": location, "f_TPR": f"r{days * 86400}", "start": start}
+    if geo_id:
+        params["geoId"] = geo_id
+    return "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?" + urllib.parse.urlencode(params)
+
+
+def linkedin_posting_url(jid):
+    return f"https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{jid}"
+
+
+def _field(page, pattern):
+    m = re.search(pattern, page, re.S)
+    return html.unescape(re.sub(r"\s+", " ", m.group(1))).strip() if m else ""
+
+
+def linkedin_empty(page):
+    """No page at all, or LinkedIn's answer for "no (more) results": a doctype and a comment."""
+    return not re.sub(r"(?is)<!doctype[^>]*>|<!--.*?-->|\s", "", page)
+
+
+def linkedin_cards(page):
+    """The jobs on one page of LinkedIn search results. No description: kit/fetch_jd.py gets it later."""
+    out = []
+    for c in page.split("<li>"):
+        m = re.search(r"jobPosting:(\d+)", c)
+        if not m:
+            continue
+        comp = _field(c, r'base-search-card__subtitle">.*?>(.*?)</a>') or _field(
+            c, r'base-search-card__subtitle">(.*?)</h4>'
+        )
+        out.append(
+            dict(
+                id=m.group(1),
+                title=_field(c, r'base-search-card__title">(.*?)</h3>'),
+                company=re.sub("<.*?>", "", comp).strip(),
+                location=_field(c, r'job-search-card__location">(.*?)</span>'),
+                date=_field(c, r'datetime="(.*?)"'),
+                url=f"https://www.linkedin.com/jobs/view/{m.group(1)}",
+                source="linkedin",
+                description=None,
+            )
+        )
+    return out
+
+
+def linkedin_posting(page):
+    """One LinkedIn job page -> {description, criteria, applicants}. Empty strings for what isn't there."""
+    m = re.search(r"show-more-less-html__markup[^>]*>(.*?)</div>", page, re.S)
+    crit = re.findall(
+        r'description__job-criteria-subheader">\s*(.*?)\s*</h3>\s*<span[^>]*>\s*(.*?)\s*</span>', page, re.S
+    )
+    return dict(
+        description=text(m.group(1)) if m else "",
+        criteria="; ".join(k + ": " + html.unescape(v) for k, v in crit),
+        applicants=_field(page, r"num-applicants__caption[^>]*>\s*(.*?)\s*<"),
+    )
+
+
 ATS = {
     "greenhouse": greenhouse,
     "lever": lever,
@@ -241,10 +306,14 @@ def guess(name):
     return found or [f"# {name}: not found by name. Find the careers page and run: python3 kit/sources.py detect <url>"]
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) == 3 and sys.argv[1] == "detect":
         print(detect(sys.argv[2]))
     elif len(sys.argv) >= 3 and sys.argv[1] == "guess":
         print("\n".join(guess(" ".join(sys.argv[2:]))))
     else:
         sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()

@@ -17,27 +17,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import workspace, load_profile, load_yaml, read_text, read_tracker, job_dirs, cv_path, cv_pdfs
 from build import problems
 
-ap = argparse.ArgumentParser()
-ap.add_argument("only", nargs="*", type=int)
-ap.add_argument("--workspace")
-a = ap.parse_args()
-ws = workspace(a.workspace)
-p = load_profile(ws)
-dirs = job_dirs(ws)
-rows = [r for r in read_tracker(ws) if r.get("#", "").isdigit()]
-missing = sorted(set(a.only) - {int(r["#"]) for r in rows})
-if a.only:
-    rows = [r for r in rows if int(r["#"]) in a.only]
-else:
-    rows = [r for r in rows if not r.get("Submitted") and re.match(r"(apply|stretch)\b", r.get("Status", ""), re.I)]
-
 
 def flat(t):
     return re.sub(r"\s+", "", t)  # PDF line breaks land anywhere
 
 
-def check(n, d):
-    """The reasons job n isn't ready (empty = ready), and the review's verdict."""
+def check(p, n, d):
+    """The reasons job n isn't ready (empty = ready), and the review's verdict. p = the profile."""
     if not d:
         return ["no job folder"], "?"
     if not os.path.exists(os.path.join(d, "spec.yaml")):
@@ -73,14 +59,32 @@ def check(n, d):
     return issues, verdict
 
 
-bad = len(missing)
-for n in missing:
-    print(f"#{n}: not in tracker.md")
-for r in rows:
-    n = int(r["#"])
-    issues, verdict = check(n, dirs.get(n))
-    bad += bool(issues)
-    print(f"#{n} {r.get('Company', '')}: " + ("; ".join(issues) if issues else f"ready (review {verdict})"))
-if not rows and not a.only:
-    print("nothing waiting: no apply/stretch rows without a Submitted date")
-sys.exit(1 if bad else 0)
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("only", nargs="*", type=int)
+    ap.add_argument("--workspace")
+    a = ap.parse_args()
+    ws = workspace(a.workspace)
+    p = load_profile(ws)
+    dirs = job_dirs(ws)
+    rows = [r for r in read_tracker(ws) if r.get("#", "").isdigit()]
+    missing = sorted(set(a.only) - {int(r["#"]) for r in rows})
+    if a.only:
+        rows = [r for r in rows if int(r["#"]) in a.only]
+    else:
+        rows = [r for r in rows if not r.get("Submitted") and re.match(r"(apply|stretch)\b", r.get("Status", ""), re.I)]
+    bad = len(missing)
+    for n in missing:
+        print(f"#{n}: not in tracker.md")
+    for r in rows:
+        n = int(r["#"])
+        issues, verdict = check(p, n, dirs.get(n))
+        bad += bool(issues)
+        print(f"#{n} {r.get('Company', '')}: " + ("; ".join(issues) if issues else f"ready (review {verdict})"))
+    if not rows and not a.only:
+        print("nothing waiting: no apply/stretch rows without a Submitted date")
+    sys.exit(1 if bad else 0)
+
+
+if __name__ == "__main__":
+    main()

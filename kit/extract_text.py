@@ -58,8 +58,12 @@ def extract(path):
         return f.read()
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__)
     text = extract(sys.argv[1])
     print(re.sub(r"\n{3,}", "\n\n", text).strip() or "(no text found: scanned PDF? read it as an image instead)")
+
+
+if __name__ == "__main__":
+    main()
